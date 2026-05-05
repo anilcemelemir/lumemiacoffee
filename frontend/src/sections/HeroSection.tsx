@@ -25,6 +25,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
   useEffect(() => {
     if (hasAnimated.current) return;
     hasAnimated.current = true;
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.3 });
@@ -68,12 +69,16 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
     return () => ctx.revert();
   }, []);
 
-  // Scroll-driven exit animation
+  // Scroll-driven animation — desktop pins & exits, mobile gets a soft
+  // parallax + slide-in reveal so the structural layout stays intact.
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
-    const ctx = gsap.context(() => {
+    const mm = gsap.matchMedia();
+
+    // -------- DESKTOP (>= 768px): full pinned exit timeline --------
+    mm.add('(min-width: 768px)', () => {
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
@@ -81,36 +86,84 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           end: '+=130%',
           pin: true,
           scrub: 0.6,
+          invalidateOnRefresh: true,
           onLeaveBack: () => {
-            // Reset all elements to visible when scrolling back
             gsap.set(leftCardRef.current, { x: 0, opacity: 1 });
             gsap.set(rightCollageRef.current, { x: 0, opacity: 1 });
           },
         },
       });
 
-      // ENTRANCE (0%-30%): Hold (already visible from load)
-      // SETTLE (30%-70%): Hold
-      // EXIT (70%-100%): Elements exit
-
-      // Left card exit
       scrollTl.fromTo(
         leftCardRef.current,
         { x: 0, opacity: 1 },
         { x: '-55vw', opacity: 0, ease: 'power2.in' },
         0.7
       );
-
-      // Right collage exit
       scrollTl.fromTo(
         rightCollageRef.current,
         { x: 0, opacity: 1 },
         { x: '55vw', opacity: 0, ease: 'power2.in' },
         0.7
       );
-    }, section);
+    });
 
-    return () => ctx.revert();
+    // -------- MOBILE (< 768px): no pin, lightweight reveal + parallax --------
+    mm.add('(max-width: 767px)', () => {
+      // Slide-in reveal for each major block (stacked vertically by CSS).
+      const blocks = [leftCardRef.current, rightCollageRef.current, textPanelRef.current].filter(Boolean);
+
+      blocks.forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse',
+              // ignoreMobileResize prevents URL-bar show/hide from
+              // re-firing the trigger and causing flicker.
+              // @ts-expect-error - valid runtime option, missing in older typings
+              ignoreMobileResize: true,
+            },
+            delay: i * 0.05,
+          }
+        );
+      });
+
+      // Subtle vertical parallax on the hero collage as the user scrolls.
+      gsap.to(rightCollageRef.current, {
+        yPercent: -6,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.4,
+          // @ts-expect-error - valid runtime option
+          ignoreMobileResize: true,
+        },
+      });
+      gsap.to(leftCardRef.current, {
+        yPercent: -3,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 0.4,
+          // @ts-expect-error - valid runtime option
+          ignoreMobileResize: true,
+        },
+      });
+    });
+
+    return () => mm.revert();
   }, []);
 
   return (

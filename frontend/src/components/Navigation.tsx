@@ -75,11 +75,11 @@ const Navigation = () => {
           useSolidStyle ? 'glass-nav py-3' : 'bg-transparent py-5'
         }`}
       >
-        <div className="w-full px-6 lg:px-12 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-3">
           {/* Logo */}
           <a
             href="#"
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-2 sm:gap-3 group min-w-0"
             onClick={(e) => {
               e.preventDefault();
               if (location.pathname !== '/') {
@@ -92,9 +92,9 @@ const Navigation = () => {
             <img
               src={brand['logo-mark-url'] || '/images/logo-mark.svg'}
               alt=""
-              className="w-9 h-9 transition-transform duration-300 group-hover:rotate-6"
+              className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 transition-transform duration-300 group-hover:rotate-6"
             />
-            <span className="font-display text-lg tracking-[0.22em] uppercase text-[var(--text-on-dark)]">
+            <span className="font-display text-sm sm:text-lg tracking-[0.18em] sm:tracking-[0.22em] uppercase text-[var(--text-on-dark)] truncate">
               {t('brand.watermark', 'Lume Mia')}
             </span>
           </a>
@@ -115,10 +115,17 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden text-[var(--text-on-dark)] p-2"
+            type="button"
+            aria-label={isMobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+            aria-expanded={isMobileMenuOpen}
+            className={`md:hidden relative z-[1002] inline-flex items-center justify-center w-11 h-11 rounded-full shrink-0 transition-colors duration-300 ${
+              isMobileMenuOpen || useSolidStyle
+                ? 'bg-[var(--brand-accent)] text-[var(--brand-primary-dark)]'
+                : 'bg-[color-mix(in_srgb,var(--brand-primary-dark)_55%,transparent)] backdrop-blur text-[var(--text-on-dark)] ring-1 ring-[color-mix(in_srgb,var(--text-on-dark)_30%,transparent)]'
+            }`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? <X className="w-6 h-6" strokeWidth={2.25} /> : <Menu className="w-6 h-6" strokeWidth={2.25} />}
           </button>
         </div>
       </nav>

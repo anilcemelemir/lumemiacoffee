@@ -44,6 +44,7 @@ export default function PublicSite() {
 
   useEffect(() => {
     const setupGlobalSnap = () => {
+      if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
       const pinned = ScrollTrigger.getAll()
         .filter(st => st.vars.pin)
         .sort((a, b) => a.start - b.start);

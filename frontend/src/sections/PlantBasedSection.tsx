@@ -22,6 +22,7 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
 
     const ctx = gsap.context(() => {
       const scrollTl = gsap.timeline({

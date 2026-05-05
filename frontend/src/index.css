@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* === Lume Mia — Bohemian-Chic palette (logo: derin bordo + altın + krem) ===
+    /* === Lume Mia â€” Bohemian-Chic palette (logo: derin bordo + altÄ±n + krem) ===
        These defaults are overridden at runtime by ThemeProvider via /api/v1/appearance. */
     --brand-primary:      #6B1F2A;
     --brand-primary-dark: #4A1218;
@@ -23,7 +23,7 @@
     --font-display:       'Cormorant Garamond', serif;
     --font-body:          'Inter', sans-serif;
 
-    /* shadcn tokens — derived from brand palette (HSL) */
+    /* shadcn tokens â€” derived from brand palette (HSL) */
     --background: 35 35% 94%;        /* surface-cream */
     --foreground: 350 22% 13%;       /* surface-ink */
     --card: 36 50% 96%;              /* surface-paper */
@@ -317,7 +317,7 @@
   }
 }
 
-/* Rich-text editor & rendered story body — keeps headings/paragraphs
+/* Rich-text editor & rendered story body â€” keeps headings/paragraphs
    readable even though Tailwind's preflight strips default styles. */
 .prose-rt h2,
 .prose-story h2 {
@@ -404,4 +404,122 @@ html {
 .menu-fade-in {
   opacity: 0;
   animation: menu-fade-in 0.5s ease-out forwards;
+}
+
+/* ==========================================================================
+   Mobile-first responsive overrides (<= 767px)
+   - Flatten pinned/scroll-driven sections into a clean stacked layout
+   - Reset GSAP transforms left in inline styles
+   - Right-size hero collage, watermark, headings & images
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* Body level: ensure no horizontal scroll on touch devices */
+  html, body { overflow-x: hidden; }
+
+  /* Pinned sections become natural-flow blocks but keep a stable viewport
+     height so URL-bar resize doesn't cause layout jumps / flicker. */
+  .section-pinned {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 5.5rem 1.25rem 3.5rem !important;
+    overflow: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 1.5rem;
+  }
+
+  /* NOTE: do NOT blanket-reset transforms here — GSAP matchMedia drives
+     subtle parallax / slide-in on mobile and we need it to apply. */
+
+  /* Direct absolute children -> stacked relative blocks.
+     We intentionally do NOT force `transform: none` so GSAP can animate them. */
+  .section-pinned > .absolute,
+  .section-pinned > [class*="absolute"] {
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    opacity: 1;
+  }
+
+  /* Image cards: keep proportions stable during scroll transitions. */
+  .section-pinned > .card-collage,
+  .section-pinned > [class*="card-collage"] {
+    aspect-ratio: 4 / 3;
+    min-height: 240px;
+    overflow: hidden;
+  }
+
+  /* Hide nested decorative absolute layers (overlay strips, botanical svgs) */
+  .section-pinned [class*="absolute"] [class*="absolute"]:not([class*="card-cream"]) {
+    display: none !important;
+  }
+
+  /* The cream text panel inside the hero collage stays, but flows below */
+  .section-pinned [class*="card-cream"] {
+    display: block !important;
+    position: relative !important;
+    inset: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    margin: 1rem 0 0 0 !important;
+    padding: 1.25rem !important;
+  }
+
+  /* Images & DynamicImage wrappers: fill their aspect-ratio container. */
+  .section-pinned img,
+  .section-pinned picture {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  /* Hero right-collage gets a 16:9 frame so the inner image keeps proportion. */
+  .section-pinned > [class*="absolute"]:has(> .absolute) {
+    aspect-ratio: 16 / 10;
+    min-height: 260px;
+    position: relative !important;
+  }
+
+  /* Oversized watermark text -> shrink so it doesn't blow horizontal scroll */
+  .section-pinned [class*="text-[20vw]"],
+  .section-pinned span[class*="20vw"] {
+    font-size: 14vw !important;
+    line-height: 1 !important;
+    letter-spacing: 0.15em !important;
+  }
+
+  /* Headings: fluid clamp */
+  .section-pinned h1 { font-size: clamp(2rem, 9vw, 2.75rem) !important; line-height: 1.05 !important; }
+  .section-pinned h2 { font-size: clamp(1.6rem, 7vw, 2.25rem) !important; line-height: 1.1 !important; }
+  .section-pinned h3 { font-size: clamp(1.25rem, 5.5vw, 1.75rem) !important; }
+
+  /* Body / paragraph */
+  .section-pinned p { font-size: 1rem !important; line-height: 1.55 !important; }
+
+  /* Tag chips wrap */
+  .section-pinned .tag-chip { font-size: 0.7rem !important; padding: 0.35rem 0.7rem !important; }
+
+  /* Already flowing sections: tighter padding */
+  .section-flowing { padding: 2.5rem 1rem !important; }
+
+  /* Disable any pin-spacer added by GSAP that might still leak through */
+  .pin-spacer {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }

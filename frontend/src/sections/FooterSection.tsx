@@ -26,6 +26,7 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
 
     // In compact mode (subpages w/ short content), skip scroll-triggered hide-then-reveal
     // so the footer never sits as a blank dark band waiting for a scroll that won't happen.

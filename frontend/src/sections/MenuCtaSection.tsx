@@ -27,6 +27,7 @@ export default function MenuCtaSection({ className = '' }: Props) {
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
