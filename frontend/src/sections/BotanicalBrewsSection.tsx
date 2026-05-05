@@ -1,0 +1,166 @@
+import { useLayoutEffect, useRef } from 'react';
+import { Link } from 'react-router';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight } from 'lucide-react';
+import { useT, splitLines } from '../lib/content';
+
+gsap.registerPlugin(ScrollTrigger);
+
+interface BotanicalBrewsSectionProps {
+  className?: string;
+}
+
+const BotanicalBrewsSection = ({ className = '' }: BotanicalBrewsSectionProps) => {
+  const t = useT();
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const line1Ref = useRef<HTMLDivElement>(null);
+  const line2Ref = useRef<HTMLDivElement>(null);
+  const subRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLAnchorElement>(null);
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const ctx = gsap.context(() => {
+      const scrollTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=130%',
+          pin: true,
+          scrub: 0.6,
+        },
+      });
+
+      // ENTRANCE (0%-30%)
+      // Headline line 1
+      scrollTl.fromTo(
+        line1Ref.current,
+        { y: '40vh', rotateX: 55, opacity: 0 },
+        { y: 0, rotateX: 0, opacity: 1, ease: 'none' },
+        0
+      );
+
+      // Headline line 2
+      scrollTl.fromTo(
+        line2Ref.current,
+        { y: '40vh', rotateX: 55, opacity: 0 },
+        { y: 0, rotateX: 0, opacity: 1, ease: 'none' },
+        0.08
+      );
+
+      // Supporting line
+      scrollTl.fromTo(
+        subRef.current,
+        { y: '6vh', opacity: 0 },
+        { y: 0, opacity: 1, ease: 'none' },
+        0.14
+      );
+
+      // CTA
+      scrollTl.fromTo(
+        ctaRef.current,
+        { y: '3vh', opacity: 0 },
+        { y: 0, opacity: 1, ease: 'none' },
+        0.2
+      );
+
+      // EXIT (70%-100%)
+      scrollTl.to(
+        [line1Ref.current, line2Ref.current],
+        { y: '-35vh', rotateX: -25, opacity: 0, ease: 'power2.in' },
+        0.7
+      );
+
+      scrollTl.to(
+        subRef.current,
+        { y: '-20vh', opacity: 0, ease: 'power2.in' },
+        0.65
+      );
+
+      scrollTl.to(
+        ctaRef.current,
+        { y: '-15vh', opacity: 0, ease: 'power2.in' },
+        0.68
+      );
+    }, section);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      id="story"
+      className={`section-pinned bg-[var(--brand-primary-dark)] dotted-grid flex flex-col items-center justify-center ${className}`}
+    >
+      <div className="text-center px-6" style={{ perspective: '1000px' }}>
+        {(() => {
+          const lines = splitLines(t('botanical.title', 'BOTANİK\nDEMLEMELER'));
+          return (
+            <>
+              <div ref={line1Ref} className="overflow-hidden">
+                <h2 className="font-display text-h1 text-[var(--text-on-dark)]">{lines[0] ?? ''}</h2>
+              </div>
+              <div ref={line2Ref} className="overflow-hidden">
+                <h2 className="font-display text-h1 text-[var(--brand-accent)]">{lines[1] ?? ''}</h2>
+              </div>
+            </>
+          );
+        })()}
+
+        {/* Supporting Line */}
+        <p
+          ref={subRef}
+          className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] mt-6 max-w-md mx-auto"
+        >
+          {t('botanical.body', 'Taze yapraklar. Berrak notalar. Sakin enerji.')}
+        </p>
+
+        {/* CTA */}
+        <Link
+          ref={ctaRef}
+          to="/hikayemiz"
+          className="btn-outline mt-8 inline-flex items-center gap-2 group"
+        >
+          {t('botanical.cta', 'Hikâyemizi okuyun')}
+          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+        </Link>
+      </div>
+
+      {/* Decorative botanical elements */}
+      <div className="absolute top-20 left-20 opacity-20 botanical-gentle">
+        <svg
+          viewBox="0 0 80 80"
+          className="w-20 h-20"
+          fill="none"
+          stroke="var(--brand-accent)"
+          strokeWidth="1"
+        >
+          <circle cx="40" cy="40" r="35" />
+          <path d="M40 15 C40 15 40 40 40 55" />
+          <path d="M40 35 C40 35 25 30 20 25" />
+          <path d="M40 35 C40 35 55 30 60 25" />
+        </svg>
+      </div>
+
+      <div className="absolute bottom-20 right-20 opacity-20 botanical-gentle" style={{ animationDelay: '-4s' }}>
+        <svg
+          viewBox="0 0 80 80"
+          className="w-24 h-24"
+          fill="none"
+          stroke="#8B9A7E"
+          strokeWidth="1"
+        >
+          <path d="M40 70 C40 70 40 50 40 40 C40 25 25 15 20 10" />
+          <path d="M40 40 C40 40 55 25 60 15" />
+          <path d="M40 50 C40 50 20 40 15 30" />
+        </svg>
+      </div>
+    </section>
+  );
+};
+
+export default BotanicalBrewsSection;

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 80" role="img" aria-label="Lume Mia Coffee">
+  <defs>
+    <linearGradient id="lm-burgundy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7A2532"/>
+      <stop offset="1" stop-color="#4A1218"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Mark: stylized coffee cherry inside a wreath -->
+  <g transform="translate(40 40)">
+    <!-- outer ring -->
+    <circle r="32" fill="none" stroke="url(#lm-burgundy)" stroke-width="2.5"/>
+    <!-- gold inner ring -->
+    <circle r="26" fill="none" stroke="#C9A961" stroke-width="0.8" opacity="0.7"/>
+    <!-- coffee bean / cherry -->
+    <ellipse cx="0" cy="0" rx="11" ry="16" fill="url(#lm-burgundy)"/>
+    <path d="M0 -14 Q3 0 0 14 Q-3 0 0 -14Z" fill="#C9A961" opacity="0.85"/>
+    <!-- sprig leaves -->
+    <path d="M-22 -6 Q-32 -14 -28 -22 Q-18 -18 -22 -6Z" fill="#6B1F2A" opacity="0.85"/>
+    <path d="M22 -6 Q32 -14 28 -22 Q18 -18 22 -6Z" fill="#6B1F2A" opacity="0.85"/>
+    <path d="M-22 6 Q-32 14 -28 22 Q-18 18 -22 6Z" fill="#6B1F2A" opacity="0.85"/>
+    <path d="M22 6 Q32 14 28 22 Q18 18 22 6Z" fill="#6B1F2A" opacity="0.85"/>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(90 0)" font-family="'Cormorant Garamond', 'Times New Roman', serif" fill="#6B1F2A">
+    <text x="0" y="38" font-size="30" font-weight="500" letter-spacing="6">LUME MIA</text>
+    <text x="2" y="60" font-size="11" font-weight="400" letter-spacing="8" fill="#C9A961">— COFFEE —</text>
+  </g>
+</svg>

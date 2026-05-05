@@ -1,0 +1,23 @@
+{
+    "name": "lumemia/coffee-backend",
+    "description": "Lume Mia Coffee — vanilla PHP 8 backend.",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.3",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-mysqli": "*",
+        "ext-gd": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Lumemia\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable"
+}
