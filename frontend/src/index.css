@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* === Lume Mia â€” Bohemian-Chic palette (logo: derin bordo + altÄ±n + krem) ===
+    /* === Lume Mia - Bohemian-Chic palette (logo: derin bordo + altın + krem) ===
        These defaults are overridden at runtime by ThemeProvider via /api/v1/appearance. */
     --brand-primary:      #6B1F2A;
     --brand-primary-dark: #4A1218;
@@ -23,7 +23,7 @@
     --font-display:       'Cormorant Garamond', serif;
     --font-body:          'Inter', sans-serif;
 
-    /* shadcn tokens â€” derived from brand palette (HSL) */
+    /* shadcn tokens - derived from brand palette (HSL) */
     --background: 35 35% 94%;        /* surface-cream */
     --foreground: 350 22% 13%;       /* surface-ink */
     --card: 36 50% 96%;              /* surface-paper */
@@ -317,7 +317,7 @@
   }
 }
 
-/* Rich-text editor & rendered story body â€” keeps headings/paragraphs
+/* Rich-text editor & rendered story body - keeps headings/paragraphs
    readable even though Tailwind's preflight strips default styles. */
 .prose-rt h2,
 .prose-story h2 {
@@ -515,11 +515,129 @@ html {
   /* Already flowing sections: tighter padding */
   .section-flowing { padding: 2.5rem 1rem !important; }
 
-  /* Disable any pin-spacer added by GSAP that might still leak through */
-  .pin-spacer {
+  /* Disable stale pin-spacers, but keep Hero's intentional mobile pinning. */
+  .pin-spacer:not(:has(> .hero-section)) {
     height: auto !important;
     min-height: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
+  }
+
+  /* Hero keeps the desktop layered composition on mobile instead of stacking. */
+  .section-pinned.hero-section {
+    width: 100vw !important;
+    height: 100vh !important;
+    height: 100svh !important;
+    min-height: 100vh !important;
+    min-height: 100svh !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: block !important;
+    gap: 0 !important;
+    isolation: isolate;
+    touch-action: pan-y;
+  }
+
+  .hero-section > .hero-left-card {
+    position: absolute !important;
+    left: 5vw !important;
+    top: 12svh !important;
+    width: 66vw !important;
+    max-width: none !important;
+    height: 43svh !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    z-index: 2 !important;
+  }
+
+  .hero-section > .hero-right-collage {
+    position: absolute !important;
+    left: 18vw !important;
+    top: 31svh !important;
+    width: 78vw !important;
+    max-width: none !important;
+    height: 58svh !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+    margin: 0 !important;
+    z-index: 3 !important;
+  }
+
+  .hero-section .hero-collage-base,
+  .hero-section .hero-overlay-strip {
+    display: block !important;
+    position: absolute !important;
+  }
+
+  .hero-section .hero-collage-base {
+    inset: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+  }
+
+  .hero-section .hero-overlay-strip {
+    left: -5vw !important;
+    top: 3svh !important;
+    width: 24vw !important;
+    height: 14svh !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+    transform: rotate(-5deg) !important;
+    z-index: 4 !important;
+  }
+
+  .hero-section .hero-botanical-card {
+    display: flex !important;
+    position: absolute !important;
+    right: -2vw !important;
+    top: 3svh !important;
+    width: 20vw !important;
+    height: 20vw !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    z-index: 5 !important;
+  }
+
+  .hero-section .hero-text-panel {
+    display: block !important;
+    position: absolute !important;
+    left: 4vw !important;
+    right: 4vw !important;
+    top: auto !important;
+    bottom: 3svh !important;
+    width: auto !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    z-index: 6 !important;
+  }
+
+  .hero-section .hero-text-panel h1 {
+    font-size: clamp(1.75rem, 8vw, 2.35rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  .hero-section .hero-watermark {
+    display: block !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 47% !important;
+    width: max-content !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    z-index: 1 !important;
+  }
+
+  .hero-section .hero-watermark-text {
+    font-size: 22vw !important;
+    line-height: 1 !important;
+    letter-spacing: 0.16em !important;
   }
 }

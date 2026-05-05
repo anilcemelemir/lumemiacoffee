@@ -12,12 +12,17 @@ interface HeroSectionProps {
   className?: string;
 }
 
+const getElements = (...elements: Array<HTMLElement | null>) =>
+  elements.filter((element): element is HTMLElement => Boolean(element));
+
 const HeroSection = ({ className = '' }: HeroSectionProps) => {
   const t = useT();
   const sectionRef = useRef<HTMLDivElement>(null);
   const leftCardRef = useRef<HTMLDivElement>(null);
   const rightCollageRef = useRef<HTMLDivElement>(null);
   const textPanelRef = useRef<HTMLDivElement>(null);
+  const botanicalCardRef = useRef<HTMLDivElement>(null);
+  const watermarkRef = useRef<HTMLDivElement>(null);
   const tagsRef = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
 
@@ -76,20 +81,46 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
     if (!section) return;
 
     const mm = gsap.matchMedia();
+    const exitAt = 0.7;
+    const pinDistance = '+=130%';
+    const setAcceleratedLayers = () => {
+      gsap.set(
+        getElements(
+          leftCardRef.current,
+          rightCollageRef.current,
+          textPanelRef.current,
+          botanicalCardRef.current
+        ),
+        {
+          force3D: true,
+          transformOrigin: '50% 50%',
+          willChange: 'transform, opacity',
+        }
+      );
+      gsap.set(watermarkRef.current, {
+        xPercent: -50,
+        yPercent: -50,
+        force3D: true,
+        transformOrigin: '50% 50%',
+        willChange: 'transform, opacity',
+      });
+    };
 
     // -------- DESKTOP (>= 768px): full pinned exit timeline --------
     mm.add('(min-width: 768px)', () => {
+      setAcceleratedLayers();
+
       const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: '+=130%',
+          end: pinDistance,
           pin: true,
-          scrub: 0.6,
+          scrub: 1,
           invalidateOnRefresh: true,
           onLeaveBack: () => {
-            gsap.set(leftCardRef.current, { x: 0, opacity: 1 });
-            gsap.set(rightCollageRef.current, { x: 0, opacity: 1 });
+            gsap.set(leftCardRef.current, { x: 0, y: 0, scale: 1, opacity: 1, force3D: true });
+            gsap.set(rightCollageRef.current, { x: 0, y: 0, scale: 1, opacity: 1, force3D: true });
           },
         },
       });
@@ -97,70 +128,76 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
       scrollTl.fromTo(
         leftCardRef.current,
         { x: 0, opacity: 1 },
-        { x: '-55vw', opacity: 0, ease: 'power2.in' },
-        0.7
+        { x: '-55vw', opacity: 0, ease: 'power2.in', force3D: true },
+        exitAt
       );
       scrollTl.fromTo(
         rightCollageRef.current,
         { x: 0, opacity: 1 },
-        { x: '55vw', opacity: 0, ease: 'power2.in' },
-        0.7
+        { x: '55vw', opacity: 0, ease: 'power2.in', force3D: true },
+        exitAt
       );
     });
 
-    // -------- MOBILE (< 768px): no pin, lightweight reveal + parallax --------
+    // -------- MOBILE (< 768px): pinned exit parity in a vertical viewport --------
     mm.add('(max-width: 767px)', () => {
-      // Slide-in reveal for each major block (stacked vertically by CSS).
-      const blocks = [leftCardRef.current, rightCollageRef.current, textPanelRef.current].filter(Boolean);
+      setAcceleratedLayers();
 
-      blocks.forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { y: 40, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.7,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse',
-              // ignoreMobileResize prevents URL-bar show/hide from
-              // re-firing the trigger and causing flicker.
-              // @ts-expect-error - valid runtime option, missing in older typings
-              ignoreMobileResize: true,
-            },
-            delay: i * 0.05,
-          }
-        );
-      });
+      const resetMobileLayers = () => {
+        gsap.set(leftCardRef.current, { x: 0, y: 0, rotateZ: 0, scale: 1, opacity: 1, force3D: true });
+        gsap.set(rightCollageRef.current, { x: 0, y: 0, rotateZ: 0, scale: 1, opacity: 1, force3D: true });
+        gsap.set(watermarkRef.current, { xPercent: -50, yPercent: -50, opacity: 0.04, scale: 1, force3D: true });
+      };
 
-      // Subtle vertical parallax on the hero collage as the user scrolls.
-      gsap.to(rightCollageRef.current, {
-        yPercent: -6,
-        ease: 'none',
+      resetMobileLayers();
+
+      const scrollTl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: 'bottom top',
-          scrub: 0.4,
-          // @ts-expect-error - valid runtime option
+          end: pinDistance,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onRefreshInit: resetMobileLayers,
+          onLeaveBack: resetMobileLayers,
+          // ignoreMobileResize prevents browser chrome show/hide from
+          // reflowing the pinned mobile hero mid-scrub.
+          // @ts-expect-error - valid runtime option, missing in older typings
           ignoreMobileResize: true,
         },
       });
-      gsap.to(leftCardRef.current, {
-        yPercent: -3,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 0.4,
-          // @ts-expect-error - valid runtime option
-          ignoreMobileResize: true,
+
+      scrollTl.fromTo(
+        leftCardRef.current,
+        { x: 0, y: 0, scale: 1, rotateZ: 0, opacity: 1 },
+        {
+          x: () => -window.innerWidth * 0.08,
+          y: () => -window.innerHeight * 0.62,
+          scale: 0.92,
+          rotateZ: -2,
+          opacity: 0,
+          ease: 'power2.in',
+          force3D: true,
         },
-      });
+        exitAt
+      );
+
+      scrollTl.fromTo(
+        rightCollageRef.current,
+        { x: 0, y: 0, scale: 1, rotateZ: 0, opacity: 1 },
+        {
+          x: () => window.innerWidth * 0.04,
+          y: () => window.innerHeight * 0.58,
+          scale: 0.94,
+          rotateZ: 2,
+          opacity: 0,
+          ease: 'power2.in',
+          force3D: true,
+        },
+        exitAt
+      );
     });
 
     return () => mm.revert();
@@ -169,12 +206,12 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
   return (
     <section
       ref={sectionRef}
-      className={`section-pinned bg-[var(--brand-primary-dark)] dotted-grid ${className}`}
+      className={`section-pinned hero-section bg-[var(--brand-primary-dark)] dotted-grid ${className}`}
     >
       {/* Left Image Card */}
       <div
         ref={leftCardRef}
-        className="absolute card-collage overflow-hidden z-0"
+        className="absolute hero-left-card card-collage overflow-hidden z-0"
         style={{
           left: '6vw',
           top: '18vh',
@@ -193,7 +230,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
       {/* Right Rotating Collage */}
       <div
         ref={rightCollageRef}
-        className="absolute z-0"
+        className="absolute hero-right-collage z-0"
         style={{
           left: '52vw',
           top: '16vh',
@@ -202,7 +239,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
         }}
       >
         {/* Base Photo Card */}
-        <div className="absolute inset-0 card-collage overflow-hidden">
+        <div className="absolute hero-collage-base inset-0 card-collage overflow-hidden">
           <DynamicImage
             src={t('media.hero.collage', '/images/hero_collage.jpg')}
             alt="Coffee shop scene"
@@ -213,7 +250,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
 
         {/* Overlapping Photo Strip (Top-Left) */}
         <div
-          className="absolute card-collage overflow-hidden"
+          className="absolute hero-overlay-strip card-collage overflow-hidden"
           style={{
             left: '-3vw',
             top: '2vh',
@@ -231,7 +268,8 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
 
         {/* Botanical Outline Card (Top-Right) */}
         <div
-          className="absolute card-collage bg-[color-mix(in_srgb,var(--surface-cream)_10%,transparent)] backdrop-blur-sm flex items-center justify-center botanical-gentle"
+          ref={botanicalCardRef}
+          className="absolute hero-botanical-card card-collage bg-[color-mix(in_srgb,var(--surface-cream)_10%,transparent)] backdrop-blur-sm flex items-center justify-center botanical-gentle"
           style={{
             right: '-2vw',
             top: '3vh',
@@ -259,7 +297,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
         {/* Cream Text Panel with Tags (Bottom) */}
         <div
           ref={textPanelRef}
-          className="absolute z-20 card-cream card-collage p-6 lg:p-8"
+          className="absolute hero-text-panel z-20 card-cream card-collage p-6 lg:p-8"
           style={{
             left: '2vw',
             right: '2vw',
@@ -293,10 +331,11 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
 
       {/* Logo Watermark */}
       <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
+        ref={watermarkRef}
+        className="absolute hero-watermark left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"
         style={{ opacity: 0.04 }}
       >
-        <span className="font-display text-[20vw] tracking-[0.3em] uppercase text-[var(--text-on-dark)] whitespace-nowrap">
+        <span className="hero-watermark-text font-display text-[20vw] tracking-[0.3em] uppercase text-[var(--text-on-dark)] whitespace-nowrap">
           {t('brand.watermark', 'Lume Mia')}
         </span>
       </div>
