@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
 import { useTheme } from "../lib/theme";
 import { MediaDropzone } from "../components/MediaDropzone";
@@ -19,7 +19,7 @@ const GROUP_LABELS: Record<string, string> = {
   theme: "Renk Paleti",
   brand: "Marka",
   typography: "Tipografi",
-  layout: "Yerleşim & Davranış",
+  layout: "YerleÅŸim & DavranÄ±ÅŸ",
 };
 
 const OPTION_CHOICES: Record<string, { value: string; label: string }[]> = {
@@ -35,6 +35,21 @@ const OPTION_CHOICES: Record<string, { value: string; label: string }[]> = {
     { value: "true",  label: "Evet — kompakt" },
     { value: "false", label: "Hayır — tam yükseklik" },
   ],
+  "mobile.heading.scale": [
+    { value: "1", label: "Normal" },
+    { value: "0.9", label: "Küçültülmüş" },
+    { value: "1.1", label: "Büyütülmüş" },
+  ],
+  "mobile.body.scale": [
+    { value: "1", label: "Normal" },
+    { value: "0.95", label: "Biraz küçük" },
+    { value: "1.05", label: "Biraz büyük" },
+  ],
+  "mobile.nav.scale": [
+    { value: "1", label: "Normal" },
+    { value: "0.95", label: "Daha sık" },
+    { value: "1.05", label: "Daha rahat" },
+  ],
 };
 
 export function AppearanceManager() {
@@ -49,7 +64,7 @@ export function AppearanceManager() {
   useEffect(() => {
     api.get<ListResponse>("/api/v1/admin/appearance", true)
       .then((r) => setItems(r.data))
-      .catch((e) => setError(e instanceof Error ? e.message : "Yükleme hatası"))
+      .catch((e) => setError(e instanceof Error ? e.message : "YÃ¼kleme hatasÄ±"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -90,36 +105,38 @@ export function AppearanceManager() {
       // Re-pull theme into the live page
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Kayıt hatası");
+      setError(e instanceof Error ? e.message : "KayÄ±t hatasÄ±");
     } finally {
       setSaving(false);
     }
   }
 
-  if (loading) return <p className="text-stone-500">Yükleniyor…</p>;
+  if (loading) return <p className="text-stone-500">YÃ¼kleniyorâ€¦</p>;
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between sticky top-0 bg-[var(--surface-paper)]/95 backdrop-blur z-10 -mx-6 px-6 py-3 border-b border-[var(--border-soft)]">
-        <div>
-          <h2 className="text-2xl font-display text-[var(--brand-primary)]">Görünüm Ayarları</h2>
-          <p className="text-sm text-[var(--text-muted)]">Renkler değiştiğinde siteye anında yansır.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {message && <span className="text-sm text-green-700">{message}</span>}
-          {error && <span className="text-sm text-red-700">{error}</span>}
-          <button
-            onClick={save}
-            disabled={dirtyCount === 0 || saving}
-            className="px-5 py-2 rounded-full bg-[var(--brand-primary)] text-[var(--text-on-dark)] disabled:opacity-40 hover:bg-[var(--brand-primary-dark)] transition text-sm tracking-wider uppercase"
-          >
-            {saving ? "Kaydediliyor…" : `Kaydet${dirtyCount ? ` (${dirtyCount})` : ""}`}
-          </button>
+      <div className="sticky top-0 bg-[var(--surface-paper)]/95 backdrop-blur z-10 -mx-4 px-4 sm:-mx-6 sm:px-6 py-3 border-b border-[var(--border-soft)]">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-display text-[var(--brand-primary)]">Görünüm Ayarları</h2>
+            <p className="text-sm text-[var(--text-muted)]">Renkler değiştiğinde siteye anında yansır.</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {message && <span className="text-sm text-green-700">{message}</span>}
+            {error && <span className="text-sm text-red-700">{error}</span>}
+            <button
+              onClick={save}
+              disabled={dirtyCount === 0 || saving}
+              className="px-4 py-2 rounded-full bg-[var(--brand-primary)] text-[var(--text-on-dark)] disabled:opacity-40 hover:bg-[var(--brand-primary-dark)] transition text-sm tracking-wider uppercase"
+            >
+              {saving ? "Kaydediliyor…" : `Kaydet${dirtyCount ? ` (${dirtyCount})` : ""}`}
+            </button>
+          </div>
         </div>
       </div>
 
       {Object.entries(grouped).map(([group, list]) => (
-        <section key={group} className="bg-[var(--surface-paper)] border border-[var(--border-soft)] rounded-2xl p-6">
+        <section key={group} className="bg-[var(--surface-paper)] border border-[var(--border-soft)] rounded-2xl p-4 sm:p-6">
           <h3 className="text-xs uppercase tracking-[0.3em] text-[var(--brand-accent)] mb-5">
             {GROUP_LABELS[group] ?? group}
           </h3>
@@ -141,7 +158,7 @@ export function AppearanceManager() {
                   <div className="flex-1 min-w-0">
                     <label className="block text-xs uppercase tracking-wider text-[var(--text-muted)] mb-1">
                       {it.label ?? it.key}
-                      {isDirty && <span className="ml-2 text-[var(--brand-accent)]">●</span>}
+                      {isDirty && <span className="ml-2 text-[var(--brand-accent)]">â—</span>}
                     </label>
                     {it.kind === "url" ? (
                       <MediaDropzone
@@ -184,3 +201,4 @@ export function AppearanceManager() {
     </div>
   );
 }
+

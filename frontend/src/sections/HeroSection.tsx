@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { useT, splitLines, splitList } from '../lib/content';
 import { DynamicImage } from '../components/DynamicImage';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,9 +21,11 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
   const textPanelRef = useRef<HTMLDivElement>(null);
   const tagsRef = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
+  const isMobile = useIsMobile();
 
   // Auto-play entrance animation on load
   useEffect(() => {
+    if (isMobile) return;
     if (hasAnimated.current) return;
     hasAnimated.current = true;
 
@@ -66,10 +69,11 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
 
   // Scroll-driven exit animation
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
 
@@ -111,7 +115,33 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section className={`section-flowing bg-[var(--brand-primary-dark)] dotted-grid py-24 ${className}`}>
+        <div className="max-w-xl mx-auto px-5 space-y-4 mobile-reveal-stagger">
+          <div className="card-collage overflow-hidden aspect-[4/5]">
+            <DynamicImage src={t('media.hero.latte', '/images/hero_latte.jpg')} alt="Latte art" className="w-full h-full object-cover" loading="eager" />
+          </div>
+          <div className="card-cream card-collage p-5">
+            <h1 className="font-display text-h2 text-[var(--brand-primary-dark)] mb-3">
+              {splitLines(t('hero.main_title', 'BOTANİK\nDEMLEMELER')).map((line, i, a) => <span key={line + i}>{line}{i < a.length - 1 && <br />}</span>)}
+            </h1>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {splitList(t('hero.tags', 'Tek Menşe, Küçük Parti, Yerinde Kavrulmuş')).map((tag) => (
+                <span key={tag} className="tag-chip">{tag}</span>
+              ))}
+            </div>
+            <Link to="/menu" className="inline-flex items-center gap-2 text-micro text-[var(--brand-primary-dark)]">
+              {t('hero.cta', 'Menüyü keşfet')}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

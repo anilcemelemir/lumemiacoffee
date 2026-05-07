@@ -78,7 +78,7 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex min-w-0 items-center justify-between gap-3 mb-1">
         <span className="block text-xs uppercase tracking-widest text-[var(--text-muted)]">
           {fmtLabel}
         </span>
@@ -95,7 +95,7 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
       </div>
 
       {value && !busy ? (
-        <div className="rounded-xl overflow-hidden border border-[var(--border-soft)] bg-[var(--surface-mist)]">
+        <div className="min-w-0 rounded-xl overflow-hidden border border-[var(--border-soft)] bg-[var(--surface-mist)]">
           {isImage ? (
             <img
               src={value}
@@ -113,7 +113,7 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
               className="w-full max-h-56 object-contain bg-black"
             />
           )}
-          <div className="px-3 py-2 text-[11px] text-[var(--text-muted)] truncate font-mono">
+          <div className="min-w-0 px-3 py-2 text-[11px] text-[var(--text-muted)] truncate font-mono">
             {value}
           </div>
         </div>
@@ -122,7 +122,7 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
           onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
           onDragLeave={() => setDrag(false)}
           onDrop={onDrop}
-          className={`flex flex-col items-center justify-center gap-2 px-4 py-8 rounded-xl border-2 border-dashed cursor-pointer transition select-none ${
+          className={`flex min-w-0 flex-col items-center justify-center gap-2 px-4 py-8 rounded-xl border-2 border-dashed cursor-pointer transition select-none ${
             dragOver
               ? "border-[var(--brand-primary)] bg-[var(--brand-primary)]/5"
               : "border-[var(--border-soft)] bg-[var(--surface-mist)]/40 hover:border-[var(--brand-primary)]/60"
@@ -152,10 +152,10 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
               <span className="w-10 h-10 rounded-full bg-white border border-[var(--border-soft)] flex items-center justify-center text-[var(--brand-primary)]">
                 <Upload className="w-4 h-4" />
               </span>
-              <p className="text-sm text-[var(--text-primary)]">
+              <p className="text-center text-sm text-[var(--text-primary)]">
                 <span className="font-medium">Sürükleyip bırakın</span> veya tıklayın
               </p>
-              <p className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
+              <p className="max-w-full text-center text-[11px] text-[var(--text-muted)] flex flex-wrap items-center justify-center gap-1">
                 <Icon className="w-3 h-3" />
                 {isImage
                   ? "PNG, JPG, WebP, GIF — otomatik WebP'ye çevrilir"

@@ -1,8 +1,9 @@
-import { useLayoutEffect, useRef } from 'react';
+﻿import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useT } from '../lib/content';
 import { DynamicImage } from '../components/DynamicImage';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,8 +18,10 @@ const SlowDownSection = ({ className = '' }: SlowDownSectionProps) => {
   const centerPhotoRef = useRef<HTMLDivElement>(null);
   const outlineRef = useRef<HTMLDivElement>(null);
   const textCardRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
 
@@ -71,7 +74,22 @@ const SlowDownSection = ({ className = '' }: SlowDownSectionProps) => {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section className={`section-flowing bg-[var(--brand-primary-dark)] dotted-grid py-20 ${className}`}>
+        <div className="max-w-xl mx-auto px-5 space-y-4 mobile-reveal-stagger">
+          <div className="card-collage overflow-hidden aspect-[4/5]"><DynamicImage src={t('media.slowdown.plants', '/images/slow_plants.jpg')} alt="Plant wall" className="w-full h-full object-cover" /></div>
+          <div className="card-collage overflow-hidden aspect-[4/3]"><DynamicImage src={t('media.slowdown.interior', '/images/slow_interior.jpg')} alt="Cafe interior" className="w-full h-full object-cover" /></div>
+          <div className="card-cream card-collage p-5">
+            <h2 className="font-display text-h2 text-[var(--brand-primary-dark)] mb-3">{t('slowdown.title', 'YAVAŞLAYIN')}</h2>
+            <p className="text-body text-[color-mix(in_srgb,var(--brand-primary-dark)_80%,transparent)]">{t('slowdown.body', 'Doğal ışık, yapraklı köşeler ve oyalanmak için hazırlanmış bir çalma listesi.')}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -167,3 +185,4 @@ const SlowDownSection = ({ className = '' }: SlowDownSectionProps) => {
 };
 
 export default SlowDownSection;
+

@@ -16,6 +16,30 @@ type ListResponse = { status: "ok"; data: ContentItem[] };
 
 type SaveState = "idle" | "saving" | "success" | "error";
 
+const HIDDEN_CONTENT_KEYS = new Set([
+  "taste.cta",
+  "plant.cta",
+  "roasted.cta",
+  "barista.cta",
+  "visit.cta_reserve",
+]);
+
+const DEFAULT_CONTENT_ITEMS: ContentItem[] = [
+  { key: "brand.logo_text", value: "", group: "brand", label: "Header Logo Yazısı", updated_at: "" },
+  { key: "footer.social_ig", value: "Instagram", group: "footer", label: "Instagram Etiketi", updated_at: "" },
+  { key: "footer.social_ig_url", value: "https://www.instagram.com/", group: "footer", label: "Instagram URL", updated_at: "" },
+  { key: "footer.social_fb", value: "Facebook", group: "footer", label: "Facebook Etiketi", updated_at: "" },
+  { key: "footer.social_fb_url", value: "https://www.facebook.com/", group: "footer", label: "Facebook URL", updated_at: "" },
+  { key: "footer.social_tt", value: "TikTok", group: "footer", label: "TikTok Etiketi", updated_at: "" },
+  { key: "footer.social_tt_url", value: "https://www.tiktok.com/", group: "footer", label: "TikTok URL", updated_at: "" },
+];
+
+function withDefaultContentItems(items: ContentItem[]): ContentItem[] {
+  const keys = new Set(items.map((item) => item.key));
+  const missing = DEFAULT_CONTENT_ITEMS.filter((item) => !keys.has(item.key));
+  return missing.length > 0 ? [...items, ...missing] : items;
+}
+
 // ---------------------------------------------------------------
 // Category & section configuration
 // ---------------------------------------------------------------
@@ -35,7 +59,7 @@ const CATEGORIES: CategoryDef[] = [
     id: "intro",
     label: "Giriş",
     description: "Marka, navigasyon ve sayfa başındaki Hero kartı",
-    groups: ["brand", "nav", "hero"],
+    groups: ["brand", "nav", "intro", "hero"],
   },
   {
     id: "story",
@@ -60,6 +84,7 @@ const CATEGORIES: CategoryDef[] = [
     label: "Görsel Yönetimi",
     description: "Ana sayfadaki tüm görseller — sürükle bırak ile yükleyin, otomatik WebP'ye dönüşür",
     groups: [
+      "media-intro",
       "media-hero",
       "media-taste",
       "media-plant",
@@ -92,6 +117,7 @@ const SECTION_LABELS: Record<string, { label: string; hint: string }> = {
   newsletter: { label: "Bülten Bölümü (Footer Hemen Üstü)",     hint: "Newsletter formu ve sosyal medya etiketleri" },
   footer:     { label: "Footer (Sayfanın En Altı)",             hint: "Hızlı bağlantılar, küçük not formu ve telif satırı" },
   // Media groups
+  "media-intro":     { label: "Gorsel - Kurumsal Acilis Bandi", hint: "Sayfa en ustundeki tam ekran soluk arka plan gorseli" },
   "media-hero":      { label: "Görsel · Giriş (Hero)",        hint: "Sayfanın açılışındaki üç katmanlı kart kompozisyonu" },
   "media-taste":     { label: "Görsel · Anı Tadın",           hint: "Üç sütunlu sakin koleksiyon" },
   "media-plant":     { label: "Görsel · Bitkisel",            hint: "Vegan & bitkisel bölüm görselleri" },
@@ -116,6 +142,8 @@ type MediaSlot = {
 };
 
 const MEDIA_SLOTS: Record<string, MediaSlot> = {
+  // Intro banner
+  "media.intro.banner":       { aspect: "16:9",  recommended: "1920Ã—1080 (yatay)" },
   // Hero
   "media.hero.latte":         { aspect: "3:4",  recommended: "1200×1600 (portre)" },
   "media.hero.collage":       { aspect: "5:7",  recommended: "1400×1960 (portre)" },
@@ -171,14 +199,17 @@ export function ContentEditor() {
   useEffect(() => {
     api
       .get<ListResponse>("/api/v1/admin/content", true)
-      .then((r) => setItems(r.data))
+      .then((r) => setItems(withDefaultContentItems(r.data)))
       .catch((e) => setLoadError(e instanceof Error ? e.message : "Yükleme hatası"))
       .finally(() => setLoading(false));
   }, []);
 
   const itemsByGroup = useMemo(() => {
     const map: Record<string, ContentItem[]> = {};
-    for (const it of items) (map[it.group] ??= []).push(it);
+    for (const it of items) {
+      if (HIDDEN_CONTENT_KEYS.has(it.key)) continue;
+      (map[it.group] ??= []).push(it);
+    }
     for (const g of Object.keys(map)) {
       map[g].sort((a, b) => a.key.localeCompare(b.key));
     }
@@ -205,7 +236,15 @@ export function ContentEditor() {
 
     try {
       const payload = {
-        items: dirty.map((key) => ({ key, value: edits[key] })),
+        items: dirty.map((key) => {
+          const item = (itemsByGroup[group] ?? []).find((it) => it.key === key);
+          return {
+            key,
+            value: edits[key],
+            group: item?.group ?? group,
+            label: item?.label ?? null,
+          };
+        }),
       };
       const r = await api.put<{ status: "ok"; message: string; count: number }>(
         "/api/v1/admin/content",
@@ -276,7 +315,7 @@ export function ContentEditor() {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-[var(--border-soft)] pb-3">
+      <div className="flex flex-wrap gap-1.5 sm:gap-2 border-b border-[var(--border-soft)] pb-3">
         {CATEGORIES.map((cat) => {
           const active = cat.id === activeCategory;
           const dirtyInCat = cat.groups.reduce(
@@ -315,7 +354,7 @@ export function ContentEditor() {
       </p>
 
       {/* Section Cards */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {groupsToShow.length === 0 && (
           <p className="text-sm text-[var(--text-muted)]">Bu kategoride içerik bulunamadı.</p>
         )}
@@ -385,7 +424,7 @@ function SectionCard({
       className={`bg-[var(--surface-paper)] rounded-2xl border-2 ${borderClass} transition-all duration-300 overflow-hidden`}
     >
       {/* Header */}
-      <header className="flex items-start justify-between gap-4 px-6 py-4 border-b border-[var(--border-soft)] bg-[var(--surface-cream)]">
+      <header className="flex items-start justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 border-b border-[var(--border-soft)] bg-[var(--surface-cream)]">
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-display text-lg text-[var(--brand-primary)] uppercase tracking-wide">
@@ -414,7 +453,7 @@ function SectionCard({
       </header>
 
       {/* Fields */}
-      <div className="px-6 py-5 space-y-4">
+      <div className="px-4 py-4 sm:px-6 sm:py-5 space-y-4">
         {items.map((it) => (
           <ContentField
             key={it.key}
@@ -617,6 +656,12 @@ const EXACT_LABELS: Record<string, string> = {
   "footer.note_button":      "Footer Not Form Buton Metni",
   "footer.link_menu":        "Bağlantı Etiketi (Menü)",
   "footer.link_story":       "Bağlantı Etiketi (Hikâyemiz)",
+  "footer.social_ig":        "Instagram Etiketi",
+  "footer.social_ig_url":    "Instagram URL",
+  "footer.social_fb":        "Facebook Etiketi",
+  "footer.social_fb_url":    "Facebook URL",
+  "footer.social_tt":        "TikTok Etiketi",
+  "footer.social_tt_url":    "TikTok URL",
   "visit.address":           "Adres (Tam Posta Adresi)",
   "visit.hours":             "Çalışma Saatleri",
   "visit.phone":             "Telefon",

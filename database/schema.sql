@@ -189,6 +189,7 @@ VALUES
 -- ---------------------------------------------------------------
 INSERT INTO site_content (`key`, value_tr, `group`, label) VALUES
     -- Marka
+    ('brand.logo_text',     '',                                                                                 'brand',  'Header logo yazisi'),
     ('brand.name',          'Lume Mia Coffee',                                                                  'brand',  'Marka adı'),
     ('brand.tagline',       'Botanik demlemeler, yavaşça servis edilir.',                                       'brand',  'Marka sloganı'),
     ('brand.watermark',     'Lume Mia',                                                                         'brand',  'Logo filigranı'),
@@ -289,6 +290,12 @@ INSERT INTO site_content (`key`, value_tr, `group`, label) VALUES
     ('footer.link_visit',   'Ziyaret',                                                                          'footer', 'Link ziyaret'),
     ('footer.copyright',    '© 2026 Lume Mia Coffee. Tüm hakları saklıdır.',                                    'footer', 'Telif metni'),
     ('footer.privacy',      'Gizlilik',                                                                         'footer', 'Gizlilik linki'),
+    ('footer.social_ig',    'Instagram',                                                                        'footer', 'Instagram etiketi'),
+    ('footer.social_ig_url','https://www.instagram.com/',                                                       'footer', 'Instagram URL'),
+    ('footer.social_fb',    'Facebook',                                                                         'footer', 'Facebook etiketi'),
+    ('footer.social_fb_url','https://www.facebook.com/',                                                        'footer', 'Facebook URL'),
+    ('footer.social_tt',    'TikTok',                                                                           'footer', 'TikTok etiketi'),
+    ('footer.social_tt_url','https://www.tiktok.com/',                                                          'footer', 'TikTok URL'),
     ('footer.accessibility','Erişilebilirlik',                                                                  'footer', 'Erişilebilirlik linki');
 
 -- ---------------------------------------------------------------

@@ -8,8 +8,8 @@
   :root {
     /* === Lume Mia — Bohemian-Chic palette (logo: derin bordo + altın + krem) ===
        These defaults are overridden at runtime by ThemeProvider via /api/v1/appearance. */
-    --brand-primary:      #6B1F2A;
-    --brand-primary-dark: #4A1218;
+    --brand-primary:      #8B1225;
+    --brand-primary-dark: #8B1225;
     --brand-accent:       #C9A961;
     --brand-accent-soft:  #E2C68A;
     --surface-cream:      #F4EFE6;
@@ -22,6 +22,9 @@
     --border-soft:        #E0D4BE;
     --font-display:       'Cormorant Garamond', serif;
     --font-body:          'Inter', sans-serif;
+    --mobile-heading-scale: 1;
+    --mobile-body-scale: 1;
+    --mobile-nav-scale: 1;
 
     /* shadcn tokens — derived from brand palette (HSL) */
     --background: 35 35% 94%;        /* surface-cream */
@@ -63,6 +66,9 @@
   }
 
   html {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     scroll-behavior: auto;
   }
 
@@ -70,9 +76,18 @@
     font-family: var(--font-body);
     background-color: var(--brand-primary);
     color: var(--text-on-dark);
+    width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-anchor: none;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -131,6 +146,7 @@
     border-radius: 18px;
     box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
     border: 1px solid rgba(246, 242, 234, 0.12);
+    max-width: 100%;
     overflow: hidden;
   }
 
@@ -186,45 +202,12 @@
     border-bottom: 1px solid rgba(201, 169, 97, 0.25);
   }
 
-  /* Magnetic Cursor */
-  .cursor-custom {
-    width: 20px;
-    height: 20px;
-    border: 1.5px solid var(--color-accent);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 10000;
-    transition: transform 0.15s ease-out, width 0.2s, height 0.2s, border-color 0.2s;
-    transform: translate(-50%, -50%);
-    mix-blend-mode: difference;
-  }
-
-  .cursor-custom.hover {
-    width: 48px;
-    height: 48px;
-    border-color: var(--color-text-primary);
-    background: rgba(216, 161, 79, 0.1);
-  }
-
-  .cursor-dot {
-    width: 4px;
-    height: 4px;
-    background: var(--color-accent);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 10001;
-    transform: translate(-50%, -50%);
-  }
-
   /* Pinned Section Base */
   .section-pinned {
     width: 100vw;
     height: 100vh;
     position: relative;
     overflow: hidden;
-    will-change: transform;
   }
 
   /* Flowing Section */
@@ -303,17 +286,118 @@
     animation: fadeInUp 0.7s ease-out forwards;
   }
 
+  .mobile-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
   /* Stagger delays */
   .delay-100 { animation-delay: 0.1s; }
   .delay-200 { animation-delay: 0.2s; }
   .delay-300 { animation-delay: 0.3s; }
   .delay-400 { animation-delay: 0.4s; }
   .delay-500 { animation-delay: 0.5s; }
+
+  @media (max-width: 767px) {
+    html,
+    body,
+    #root {
+      overflow-x: clip;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      letter-spacing: 0.12em;
+      line-height: 1.02;
+    }
+
+    .text-h1 {
+      font-size: clamp(34px, calc(10vw * var(--mobile-heading-scale)), 52px);
+      letter-spacing: 0.12em;
+    }
+
+    .text-h2 {
+      font-size: clamp(28px, calc(8vw * var(--mobile-heading-scale)), 42px);
+      letter-spacing: 0.1em;
+    }
+
+    .text-h3 {
+      font-size: clamp(20px, calc(5.2vw * var(--mobile-heading-scale)), 30px);
+      letter-spacing: 0.1em;
+    }
+
+    .text-body {
+      font-size: clamp(14px, calc(4vw * var(--mobile-body-scale)), 17px);
+      line-height: 1.65;
+    }
+
+    .text-micro {
+      font-size: clamp(10px, calc(2.8vw * var(--mobile-nav-scale)), 12px);
+      letter-spacing: 0.14em;
+    }
+
+    .section-pinned {
+      width: 100%;
+      height: auto;
+      min-height: auto;
+      overflow: hidden;
+      will-change: auto;
+    }
+
+    .section-flowing {
+      max-width: 100%;
+      overflow-x: clip;
+    }
+
+    .grain-overlay,
+    .vignette {
+      display: none;
+    }
+
+    .mobile-reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 650ms ease, transform 650ms ease;
+    }
+
+    .mobile-reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mobile-reveal-stagger > * {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 620ms ease, transform 620ms ease;
+    }
+
+    .mobile-reveal-stagger.is-visible > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mobile-reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 80ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 150ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 220ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 290ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 360ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(7) { transition-delay: 430ms; }
+    .mobile-reveal-stagger.is-visible > *:nth-child(8) { transition-delay: 500ms; }
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-reveal,
+  .mobile-reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 
@@ -391,6 +475,16 @@ html {
   background: rgba(216, 161, 79, 0.5);
 }
 
+/* GSAP ScrollTrigger pin-spacer: keep pinned sections from blocking the fixed nav. */
+.pin-spacer,
+.pin-spacer > .section-pinned {
+  pointer-events: none;
+}
+
+.pin-spacer :is(a, button, input, textarea, select, [role="button"], [tabindex]:not([tabindex="-1"])) {
+  pointer-events: auto;
+}
+
 /* === Menu page utilities === */
 @layer utilities {
   .scrollbar-none::-webkit-scrollbar { display: none; }
@@ -398,10 +492,10 @@ html {
 }
 
 @keyframes menu-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .menu-fade-in {
   opacity: 0;
-  animation: menu-fade-in 0.5s ease-out forwards;
+  animation: menu-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useT, splitList } from '../lib/content';
+import { useIsMobile } from '../hooks/use-mobile';
 import { DynamicImage } from '../components/DynamicImage';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -18,8 +19,10 @@ const BaristaCraftSection = ({ className = '' }: BaristaCraftSectionProps) => {
   const overlap1Ref = useRef<HTMLDivElement>(null);
   const overlap2Ref = useRef<HTMLDivElement>(null);
   const overlap3Ref = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
 
@@ -80,7 +83,27 @@ const BaristaCraftSection = ({ className = '' }: BaristaCraftSectionProps) => {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section className={`section-flowing bg-[var(--brand-primary-dark)] dotted-grid py-20 ${className}`}>
+        <div className="max-w-xl mx-auto px-5 space-y-4 mobile-reveal-stagger">
+          <div className="card-collage overflow-hidden aspect-[4/5]"><DynamicImage src={t('media.barista.portrait', '/images/barista_portrait.jpg')} alt="Barista portrait" className="w-full h-full object-cover" /></div>
+          <div className="card-collage overflow-hidden aspect-[4/3]"><DynamicImage src={t('media.barista.hands', '/images/barista_hands.jpg')} alt="Barista hands" className="w-full h-full object-cover" /></div>
+          <div className="card-collage overflow-hidden aspect-[4/3]"><DynamicImage src={t('media.barista.at_work', '/images/roasted_barista.jpg')} alt="Barista at work" className="w-full h-full object-cover" /></div>
+          <div className="card-cream card-collage p-4">
+            <h3 className="font-display text-h3 text-[var(--brand-primary-dark)] mb-3">{t('barista.title', 'BARISTA ZANAATI')}</h3>
+            <div className="flex flex-wrap gap-2">
+              {splitList(t('barista.tags', 'Her Gün El Emeği, Hassas Demleme, Sıcak Servis')).map((tag) => (
+                <span key={tag} className="tag-chip text-[10px]">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -181,8 +204,8 @@ const BaristaCraftSection = ({ className = '' }: BaristaCraftSectionProps) => {
             width: '22vw',
           }}
         >
-          <h3 className="font-display text-h3 text-[var(--brand-primary-dark)] mb-3">{t('barista.title', 'BARİSTA ZANAATI')}</h3>
-          <div className="flex flex-wrap gap-2 mb-3">
+          <h3 className="font-display text-h3 text-[var(--brand-primary-dark)] mb-3">{t('barista.title', 'BARISTA ZANAATI')}</h3>
+          <div className="flex flex-wrap gap-2">
             {splitList(t('barista.tags', 'Her Gün El Emeği, Hassas Demleme, Sıcak Servis')).map((tag) => (
               <span key={tag} className="tag-chip text-[10px]">{tag}</span>
             ))}

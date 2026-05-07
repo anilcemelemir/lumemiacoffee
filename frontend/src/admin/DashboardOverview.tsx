@@ -28,17 +28,17 @@ export function DashboardOverview({ user }: { user: { username: string; role: st
 
   return (
     <div className="space-y-8">
-      <div className="bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary-dark)] text-[var(--text-on-dark)] rounded-2xl p-8 flex items-center gap-6">
+      <div className="bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-primary-dark)] text-[var(--text-on-dark)] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
         <img
           src={brand["logo-mark-url"] || "/images/logo-mark.svg"}
           alt=""
-          className="w-20 h-20 flex-shrink-0"
+          className="w-14 h-14 sm:w-20 sm:h-20 flex-shrink-0"
         />
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-[var(--brand-accent)]">
             {brand["brand-name"] || "Lume Mia Coffee"}
           </p>
-          <h2 className="text-3xl font-display mt-1">
+          <h2 className="text-2xl sm:text-3xl font-display mt-1">
             Hoş geldiniz{user ? `, ${user.username}` : ""}
           </h2>
           <p className="text-sm text-[var(--text-on-dark)]/70 mt-2">

@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useT, splitLines } from '../lib/content';
 import { DynamicImage } from '../components/DynamicImage';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,8 +18,10 @@ const FreshlyRoastedSection = ({ className = '' }: FreshlyRoastedSectionProps) =
   const rightPhotoRef = useRef<HTMLDivElement>(null);
   const topPhotoRef = useRef<HTMLDivElement>(null);
   const beansRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
 
@@ -90,7 +93,36 @@ const FreshlyRoastedSection = ({ className = '' }: FreshlyRoastedSectionProps) =
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section className={`section-flowing bg-[var(--brand-primary-dark)] dotted-grid py-20 ${className}`}>
+        <div className="max-w-xl mx-auto px-5 space-y-5 mobile-reveal-stagger">
+          <h2 className="font-display text-h2 text-[var(--surface-cream)]">
+            {splitLines(t('roasted.title', 'YENİ\nKAVRULDU')).map((line, i, a) => (
+              <span key={line + i}>{line}{i < a.length - 1 && <br />}</span>
+            ))}
+          </h2>
+          <p className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_78%,transparent)] mb-3">
+            {t('roasted.body', 'Kahveyi küçük partilerde kavurur, gün boyu demleriz — her fincan size özel hazırlanmış gibi tat alır.')}
+          </p>
+          <div className="card-collage overflow-hidden aspect-[4/5]">
+            <DynamicImage src={t('media.roasted.machine', '/images/roasting_machine.jpg')} alt="Coffee roasting machine" className="w-full h-full object-cover" />
+          </div>
+          <div className="card-collage overflow-hidden aspect-[4/3]">
+            <DynamicImage src={t('media.roasted.cup', '/images/roasted_cup.jpg')} alt="Coffee cup" className="w-full h-full object-cover" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="relative aspect-square rounded-xl overflow-hidden"><DynamicImage src={t('media.roasted.beans_1', '/images/beans_01.jpg')} alt="Coffee beans" className="w-full h-full object-cover" /></div>
+            <div className="relative aspect-square rounded-xl overflow-hidden"><DynamicImage src={t('media.roasted.beans_2', '/images/beans_02.jpg')} alt="Coffee beans" className="w-full h-full object-cover" /></div>
+            <div className="relative aspect-square rounded-xl overflow-hidden"><DynamicImage src={t('media.roasted.beans_3', '/images/beans_03.jpg')} alt="Coffee beans" className="w-full h-full object-cover" /></div>
+            <div className="relative aspect-square rounded-xl overflow-hidden"><DynamicImage src={t('media.roasted.beans_4', '/images/beans_04.jpg')} alt="Coffee beans" className="w-full h-full object-cover" /></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -117,7 +149,7 @@ const FreshlyRoastedSection = ({ className = '' }: FreshlyRoastedSectionProps) =
               </span>
             ))}
           </h2>
-          <p className="text-body text-[color-mix(in_srgb,var(--brand-primary-dark)_80%,transparent)] mb-6 flex-1">
+          <p className="text-body text-[color-mix(in_srgb,var(--brand-primary-dark)_80%,transparent)] flex-1">
             {t('roasted.body', 'Kahveyi küçük partilerde kavurur, gün boyu demleriz — her fincan size özel hazırlanmış gibi tat alır.')}
           </p>
         </div>

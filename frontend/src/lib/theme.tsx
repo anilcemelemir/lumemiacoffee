@@ -21,8 +21,8 @@ export type ThemeContextValue = {
 const FALLBACK: ThemeContextValue = {
   ready: false,
   colors: {
-    "brand-primary": "#6B1F2A",
-    "brand-primary-dark": "#4A1218",
+    "brand-primary": "#8B1225",
+    "brand-primary-dark": "#8B1225",
     "brand-accent": "#C9A961",
     "brand-accent-soft": "#E2C68A",
     "surface-cream": "#F4EFE6",
@@ -43,6 +43,9 @@ const FALLBACK: ThemeContextValue = {
     "menu_cta.background": "dotted",
     "nav.solid_on_subpages": "true",
     "menu.compact_footer": "true",
+    "mobile.heading.scale": "1",
+    "mobile.body.scale": "1",
+    "mobile.nav.scale": "1",
   },
   refresh: async () => {},
 };
@@ -55,6 +58,22 @@ function applyToRoot(colors: Record<string, string>, fonts: Record<string, strin
   for (const [k, v] of Object.entries(fonts)) {
     root.style.setProperty(`--${k}`, v);
   }
+}
+
+function resolveThemeColors(input: Record<string, string>): Record<string, string> {
+  const colors = { ...FALLBACK.colors, ...input };
+  const primary = colors["brand-primary"] || FALLBACK.colors["brand-primary"];
+  const dark = colors["brand-primary-dark"];
+
+  // The public site uses `brand-primary-dark` for most section backgrounds.
+  // If that token is still the old default, let the selected primary color
+  // drive the whole site palette. Users can still override the dark token
+  // directly when they want a separate shade.
+  if (!dark || dark === "#4A1218" || dark === FALLBACK.colors["brand-primary-dark"]) {
+    colors["brand-primary-dark"] = primary;
+  }
+
+  return colors;
 }
 
 const ThemeCtx = createContext<ThemeContextValue>(FALLBACK);
@@ -83,11 +102,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       for (const [k, e] of Object.entries(r.typography || {})) f[k] = e.value;
       const l: Record<string, string> = {};
       for (const [k, e] of Object.entries(r.layout || {})) l[k] = e.value;
-      setColors({ ...FALLBACK.colors, ...c });
+      const mergedLayout = { ...FALLBACK.layout, ...l };
+      const resolvedColors = resolveThemeColors(c);
+      setColors(resolvedColors);
       setBrand({ ...FALLBACK.brand, ...b });
       setFonts((prev) => ({ ...prev, ...f }));
-      setLayout({ ...FALLBACK.layout, ...l });
-      applyToRoot({ ...FALLBACK.colors, ...c }, { ...fonts, ...f });
+      setLayout(mergedLayout);
+      applyToRoot(resolvedColors, { ...fonts, ...f });
+      document.documentElement.style.setProperty('--mobile-heading-scale', mergedLayout['mobile.heading.scale'] ?? '1');
+      document.documentElement.style.setProperty('--mobile-body-scale', mergedLayout['mobile.body.scale'] ?? '1');
+      document.documentElement.style.setProperty('--mobile-nav-scale', mergedLayout['mobile.nav.scale'] ?? '1');
     } catch {
       /* keep fallback */
     } finally {
