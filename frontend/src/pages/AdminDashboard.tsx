@@ -5,6 +5,7 @@ import {
   FileText,
   Coffee,
   Palette,
+  Search,
   Settings,
   LogOut,
   ChevronRight,
@@ -17,8 +18,9 @@ import { ContentEditor } from "../admin/ContentEditor";
 import { MenuManager } from "../admin/MenuManager";
 import { AppearanceManager } from "../admin/AppearanceManager";
 import { DashboardOverview } from "../admin/DashboardOverview";
+import { SeoManager } from "../admin/SeoManager";
 
-type SectionId = "dashboard" | "content" | "menu" | "appearance" | "system";
+type SectionId = "dashboard" | "content" | "menu" | "appearance" | "seo" | "system";
 
 type NavItem = {
   id: SectionId;
@@ -32,6 +34,7 @@ const NAV: NavItem[] = [
   { id: "content",    label: "İçerik Yönetimi",  icon: FileText,        description: "Hero, Hakkımızda, Bölümler, Footer" },
   { id: "menu",       label: "Menü Yönetimi",    icon: Coffee,          description: "Ürünler & Kategoriler" },
   { id: "appearance", label: "Görünüm Ayarları", icon: Palette,         description: "Renkler, Logo, Tipografi" },
+  { id: "seo",        label: "SEO & Analitik",   icon: Search,          description: "Meta etiketler, izleme kodları" },
   { id: "system",     label: "Sistem",           icon: Settings,        description: "Profil & API durumu" },
 ];
 
@@ -197,6 +200,7 @@ export default function AdminDashboard() {
           {section === "content"    && <ContentEditor />}
           {section === "menu"       && <MenuManager />}
           {section === "appearance" && <AppearanceManager />}
+          {section === "seo"        && <SeoManager />}
           {section === "system"     && <SystemPanel user={user} onLogout={logout} />}
         </main>
       </div>

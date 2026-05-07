@@ -18,9 +18,17 @@ type ListResponse = { status: "ok"; data: Item[] };
 const GROUP_LABELS: Record<string, string> = {
   theme: "Renk Paleti",
   brand: "Marka",
+  icons: "İkonlar",
   typography: "Tipografi",
   layout: "YerleÅŸim & DavranÄ±ÅŸ",
 };
+
+function uploadPrefixFor(key: string): string {
+  if (key === "logo-mark-url") return "logo-mark";
+  if (key === "favicon-url") return "favicon";
+  if (key === "apple-touch-icon-url") return "apple-touch-icon";
+  return "logo";
+}
 
 const OPTION_CHOICES: Record<string, { value: string; label: string }[]> = {
   "menu_cta.background": [
@@ -165,7 +173,7 @@ export function AppearanceManager() {
                         kind="image"
                         value={current || null}
                         onChange={(url) => setField(it.key, url ?? "", it.value)}
-                        prefix={it.key === "logo-mark-url" ? "logo-mark" : "logo"}
+                        prefix={uploadPrefixFor(it.key)}
                         label={it.label ?? it.key}
                       />
                     ) : optionChoices ? (
