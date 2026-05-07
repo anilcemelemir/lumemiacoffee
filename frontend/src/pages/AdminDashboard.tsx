@@ -8,6 +8,8 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Menu,
+  X,
 } from "lucide-react";
 import { api, auth, HttpError } from "../lib/api";
 import { useTheme } from "../lib/theme";
@@ -37,6 +39,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { brand } = useTheme();
   const [section, setSection] = useState<SectionId>("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<{ username: string; role: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,15 +65,39 @@ export default function AdminDashboard() {
 
   return (
     <div
-      className="min-h-screen flex"
+      className="min-h-screen w-full max-w-full overflow-hidden flex"
       style={{
         background: "var(--surface-cream)",
         color: "var(--text-primary)",
         fontFamily: "var(--font-body)",
       }}
     >
-      {/* Sidebar */}
-      <aside className="w-72 bg-[var(--surface-ink)] text-[var(--text-on-dark)] flex flex-col flex-shrink-0">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — fixed overlay on mobile, in-flow on desktop */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 w-72 flex flex-col
+          bg-[var(--surface-ink)] text-[var(--text-on-dark)]
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          md:relative md:translate-x-0 md:flex-shrink-0
+        `}
+      >
+        {/* Mobile close button */}
+        <button
+          className="md:hidden absolute top-4 right-4 p-2 rounded-full text-white/70 hover:bg-white/10 transition"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <X className="w-5 h-5" />
+        </button>
+
         <div className="px-6 py-6 border-b border-white/10 flex items-center gap-3">
           <img
             src={brand["logo-mark-url"] || "/images/logo-mark.svg"}
@@ -92,7 +119,7 @@ export default function AdminDashboard() {
             return (
               <button
                 key={item.id}
-                onClick={() => setSection(item.id)}
+                onClick={() => { setSection(item.id); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-6 py-3 text-sm transition-colors text-left ${
                   active
                     ? "bg-[var(--brand-primary)] text-[var(--text-on-dark)] border-l-4 border-[var(--brand-accent)]"
@@ -131,13 +158,36 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-[var(--surface-paper)] border-b border-[var(--border-soft)] px-8 py-5">
+      <div className="flex-1 flex flex-col min-w-0 max-w-full">
+        {/* Mobile top bar */}
+        <div className="md:hidden sticky top-0 z-30 flex items-center gap-3 px-4 py-3 bg-[var(--surface-ink)] text-[var(--text-on-dark)] border-b border-white/10">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-full hover:bg-white/10 transition flex-shrink-0"
+            aria-label="Menüyü aç"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <img
+            src={brand["logo-mark-url"] || "/images/logo-mark.svg"}
+            alt=""
+            className="w-7 h-7 flex-shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-[var(--brand-accent)] leading-none">
+              Yönetim Paneli
+            </p>
+            <h2 className="text-sm font-display tracking-wide truncate">{current.label}</h2>
+          </div>
+        </div>
+
+        {/* Desktop header */}
+        <header className="hidden md:block bg-[var(--surface-paper)] border-b border-[var(--border-soft)] px-8 py-5">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--brand-accent)]">Bölüm</p>
           <h2 className="text-2xl font-display text-[var(--brand-primary)]">{current.label}</h2>
         </header>
 
-        <main className="flex-1 overflow-auto px-8 py-8">
+        <main className="flex-1 min-w-0 max-w-full overflow-auto px-4 py-4 md:px-8 md:py-8">
           {error && (
             <p className="mb-6 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
               {error}

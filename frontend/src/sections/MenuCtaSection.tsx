@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { useT } from '../lib/content';
 import { useTheme } from '../lib/theme';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,7 @@ interface Props {
 export default function MenuCtaSection({ className = '' }: Props) {
   const t = useT();
   const { layout } = useTheme();
+  const isMobile = useIsMobile();
   const sectionRef = useRef<HTMLElement>(null);
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const titleRef   = useRef<HTMLHeadingElement>(null);
@@ -25,6 +27,7 @@ export default function MenuCtaSection({ className = '' }: Props) {
   const isDotted = bgStyle !== 'cream';
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
@@ -43,7 +46,7 @@ export default function MenuCtaSection({ className = '' }: Props) {
       tl.fromTo(ctaRef.current,     { y: 16, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, ease: 'none' }, 0.2);
     }, section);
     return () => ctx.revert();
-  }, [isDotted]);
+  }, [isDotted, isMobile]);
 
   return (
     <section
@@ -55,7 +58,7 @@ export default function MenuCtaSection({ className = '' }: Props) {
           : 'bg-[var(--surface-cream)]'
       } py-24 sm:py-32 px-6 ${className}`}
     >
-      <div className="max-w-3xl mx-auto text-center">
+      <div className="max-w-3xl mx-auto text-center mobile-reveal-stagger">
         <p
           ref={eyebrowRef}
           className="text-micro tracking-[0.4em] uppercase mb-4 text-[var(--brand-accent)]"

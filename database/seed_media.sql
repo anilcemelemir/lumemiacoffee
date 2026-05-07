@@ -3,6 +3,9 @@
 -- Idempotent: INSERT IGNORE preserves any URL the admin has already changed.
 
 INSERT IGNORE INTO site_content (`key`, value_tr, `group`, label) VALUES
+  -- INTRO
+  ('media.intro.banner',       '/images/visit_interior.jpg',     'media-intro',     'Kurumsal açılış bandı arka plan görseli'),
+
   -- HERO
   ('media.hero.latte',         '/images/hero_latte.jpg',         'media-hero',      'Hero · Sol kart (latte detayı)'),
   ('media.hero.collage',       '/images/hero_collage.jpg',       'media-hero',      'Hero · Sağ büyük kart (mekân)'),

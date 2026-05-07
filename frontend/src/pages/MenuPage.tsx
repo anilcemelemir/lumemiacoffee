@@ -18,6 +18,11 @@ export default function MenuPage() {
 function MenuPageShell() {
   const { layout } = useTheme();
   const compactFooter = (layout?.["menu.compact_footer"] ?? "true") === "true";
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, []);
+
   return (
     <div className="relative min-h-screen flex flex-col bg-[var(--surface-cream)]">
       <Navigation />
@@ -95,13 +100,13 @@ function MenuPageBody() {
     const el = sectionRefs.current[slug];
     if (!el) return;
     // Account for fixed nav (~64px) + sticky bar (~110px on mobile)
-    const offset = window.innerWidth < 640 ? 170 : 200;
+    const offset = window.innerWidth < 640 ? 188 : 206;
     const top = el.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: "smooth" });
   }
 
   return (
-    <main className="flex-1 pt-20 sm:pt-24 pb-6">
+    <main className="flex-1 pt-28 sm:pt-32 pb-8">
       {/* Page header */}
       <header className="px-5 sm:px-8 max-w-3xl mx-auto">
         <Link
@@ -123,7 +128,7 @@ function MenuPageBody() {
       </header>
 
       {/* Sticky search + tabs */}
-      <div className="sticky top-[68px] sm:top-[76px] z-40 bg-[var(--surface-cream)]/90 backdrop-blur-md border-b border-[var(--border-soft)] mt-6">
+      <div className="sticky top-[88px] z-40 bg-[var(--surface-cream)]/90 backdrop-blur-md border-b border-[var(--border-soft)] mt-6">
         <div className="px-5 sm:px-8 max-w-3xl mx-auto py-3 space-y-3">
           <SearchBar value={query} onChange={setQuery} />
           {filtered.length > 0 && (
@@ -237,10 +242,10 @@ function CategoryTabs({
             <li key={c.id}>
               <button
                 onClick={() => onJump(c.slug)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition border ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
                   isActive
-                    ? "bg-[var(--brand-primary)] text-[var(--text-on-dark)] border-[var(--brand-primary)]"
-                    : "bg-white text-[var(--text-primary)] border-[var(--border-soft)] hover:border-[var(--brand-primary)]"
+                    ? "bg-[var(--brand-primary)] text-[var(--text-on-dark)] border-[var(--brand-primary)] shadow-sm scale-105"
+                    : "bg-white text-[var(--text-primary)] border-[var(--border-soft)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
                 }`}
               >
                 {c.name}
@@ -263,7 +268,7 @@ function ProductCard({ product, index }: { product: MenuProduct; index: number }
 
   return (
     <li
-      className="group bg-white border border-[var(--border-soft)] rounded-2xl overflow-hidden flex gap-3 sm:gap-4 hover:border-[var(--brand-primary)]/40 hover:shadow-sm transition-all duration-300 menu-fade-in"
+      className="group bg-white border border-[var(--border-soft)] rounded-2xl overflow-hidden flex gap-3 sm:gap-4 hover:border-[var(--brand-primary)]/30 hover:shadow-[0_4px_20px_rgba(139,18,37,0.08)] hover:-translate-y-0.5 transition-all duration-300 menu-fade-in"
       style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
     >
       {/* Media */}
@@ -359,7 +364,7 @@ function FeaturedRail({ products }: { products: MenuProduct[] }) {
         {products.map((p, i) => (
           <li
             key={`feat-${p.id}`}
-            className="snap-start flex-shrink-0 w-56 bg-white border border-[var(--border-soft)] rounded-2xl overflow-hidden menu-fade-in"
+            className="snap-start flex-shrink-0 w-56 bg-white border border-[var(--border-soft)] rounded-2xl overflow-hidden menu-fade-in hover:border-[var(--brand-primary)]/30 hover:shadow-[0_4px_16px_rgba(139,18,37,0.08)] hover:-translate-y-0.5 transition-all duration-300"
             style={{ animationDelay: `${i * 60}ms` }}
           >
             {p.image_url && (
@@ -408,7 +413,7 @@ function EmptyState({ query }: { query: string }) {
     <div className="text-center py-16">
       <p className="text-base text-[var(--text-primary)] mb-1">Sonuç bulunamadı</p>
       <p className="text-sm text-[var(--text-muted)]">
-        “{query}” için eşleşen ürün yok. Farklı bir kelime deneyin.
+        "{query}" için eşleşen ürün yok. Farklı bir kelime deneyin.
       </p>
     </div>
   );

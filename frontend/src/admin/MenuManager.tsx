@@ -107,7 +107,7 @@ export function MenuManager() {
   if (loading) return <p className="text-[var(--text-muted)]">Yükleniyor…</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-full min-w-0 space-y-6 overflow-hidden">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h2 className="text-2xl font-display text-[var(--brand-primary)]">Menü Yönetimi</h2>
@@ -135,8 +135,8 @@ export function MenuManager() {
         </p>
       )}
 
-      <div className="overflow-x-auto bg-[var(--surface-paper)] rounded-2xl border border-[var(--border-soft)]">
-        <table className="w-full text-sm">
+      <div className="w-full max-w-full min-w-0 overflow-x-auto bg-[var(--surface-paper)] rounded-2xl border border-[var(--border-soft)]">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-[var(--surface-cream)] text-left text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
             <tr>
               <th className="px-4 py-3 w-10"></th>
@@ -194,7 +194,7 @@ export function MenuManager() {
                 <td className="px-4 py-3 text-[var(--text-muted)]">{p.category_name}</td>
                 <td className="px-4 py-3">
                   <div className="font-medium text-[var(--text-primary)]">{p.name}</div>
-                  <div className="text-xs text-[var(--text-muted)] truncate max-w-md">
+                  <div className="text-xs text-[var(--text-muted)] truncate max-w-[18rem] xl:max-w-md">
                     {p.description}
                   </div>
                 </td>
@@ -234,13 +234,13 @@ export function MenuManager() {
 
       {editing && (
         <div
-          className="fixed inset-0 bg-stone-900/60 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-stone-900/60 flex items-center justify-center z-50 p-3 sm:p-4"
           onClick={() => setEditing(null)}
         >
           <form
             onSubmit={onSave}
             onClick={(e) => e.stopPropagation()}
-            className="bg-[var(--surface-paper)] rounded-2xl p-6 w-full max-w-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+            className="bg-[var(--surface-paper)] rounded-2xl p-4 sm:p-6 w-full max-w-[min(42rem,calc(100vw-1.5rem))] min-w-0 space-y-4 max-h-[90dvh] overflow-y-auto overflow-x-hidden"
           >
             <h3 className="text-xl font-display text-[var(--brand-primary)]">
               {"id" in editing ? "Ürünü düzenle" : "Yeni ürün"}

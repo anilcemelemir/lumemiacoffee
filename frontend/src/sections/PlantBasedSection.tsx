@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useT, splitList } from '../lib/content';
 import { DynamicImage } from '../components/DynamicImage';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,8 +19,10 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
   const overlap1Ref = useRef<HTMLDivElement>(null);
   const overlap2Ref = useRef<HTMLDivElement>(null);
   const overlap3Ref = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
@@ -35,8 +38,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
         },
       });
 
-      // ENTRANCE (0%-30%)
-      // Right collage base
       scrollTl.fromTo(
         rightCollageRef.current,
         { x: '60vw', rotateZ: 6, opacity: 0 },
@@ -44,7 +45,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
         0
       );
 
-      // Overlaps stagger
       scrollTl.fromTo(
         [overlap1Ref.current, overlap2Ref.current, overlap3Ref.current],
         { scale: 0.85, y: '-6vh', opacity: 0 },
@@ -52,7 +52,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
         0.1
       );
 
-      // Left headline
       scrollTl.fromTo(
         leftTextRef.current,
         { x: '-40vw', opacity: 0 },
@@ -60,7 +59,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
         0.06
       );
 
-      // EXIT (70%-100%)
       scrollTl.to(
         rightCollageRef.current,
         { x: '55vw', opacity: 0, ease: 'power2.in' },
@@ -75,14 +73,33 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section className={`section-flowing bg-[var(--brand-primary-dark)] dotted-grid py-20 ${className}`}>
+        <div className="max-w-xl mx-auto px-5 space-y-4 mobile-reveal-stagger">
+          <h2 className="font-display text-h2 text-[var(--text-on-dark)]">{t('plant.title', 'BITKISEL')}</h2>
+          <p className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)]">{t('plant.body', 'Sut alternatifleri ve mevsim taze malzemeler.')}</p>
+          <div className="card-collage overflow-hidden aspect-[4/5]"><DynamicImage src={t('media.plant.background', '/images/plant_based.jpg')} alt="Plant-based preparation" className="w-full h-full object-cover" /></div>
+          <div className="card-collage overflow-hidden aspect-[4/3]"><DynamicImage src={t('media.plant.jug', '/images/plant_jug.jpg')} alt="Matcha jug" className="w-full h-full object-cover" /></div>
+          <div className="card-cream card-collage p-4">
+            <div className="flex flex-wrap gap-2">
+              {splitList(t('plant.tags', 'Yulaf / Badem / Soya, Mevsim Sebze & Meyve, Yapay Aroma Yok')).map((tag) => (
+                <span key={tag} className="tag-chip text-[10px]">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
       ref={sectionRef}
       className={`section-pinned bg-[var(--brand-primary-dark)] dotted-grid ${className}`}
     >
-      {/* Left Text Area */}
       <div
         ref={leftTextRef}
         className="absolute"
@@ -93,14 +110,13 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
         }}
       >
         <h2 className="font-display text-h2 text-[var(--text-on-dark)] mb-4">
-          {t('plant.title', 'BİTKİSEL')}
+          {t('plant.title', 'BITKISEL')}
         </h2>
-        <p className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] mb-6">
-          {t('plant.body', 'Süt alternatifleri ve mevsim taze malzemeler.')}
+        <p className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)]">
+          {t('plant.body', 'Sut alternatifleri ve mevsim taze malzemeler.')}
         </p>
       </div>
 
-      {/* Right Collage Cluster */}
       <div
         ref={rightCollageRef}
         className="absolute"
@@ -111,7 +127,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
           height: '68vh',
         }}
       >
-        {/* Base Card */}
         <div className="absolute inset-0 card-collage overflow-hidden">
           <DynamicImage
             src={t('media.plant.background', '/images/plant_based.jpg')}
@@ -120,7 +135,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
           />
         </div>
 
-        {/* Top-Left Small Photo Card */}
         <div
           ref={overlap1Ref}
           className="absolute card-collage overflow-hidden"
@@ -139,7 +153,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
           />
         </div>
 
-        {/* Top-Right Botanical Outline Card */}
         <div
           ref={overlap2Ref}
           className="absolute card-collage bg-[color-mix(in_srgb,var(--surface-cream)_15%,transparent)] backdrop-blur-sm flex items-center justify-center botanical-gentle"
@@ -167,7 +180,6 @@ const PlantBasedSection = ({ className = '' }: PlantBasedSectionProps) => {
           </svg>
         </div>
 
-        {/* Bottom-Left Cream Tag Card */}
         <div
           ref={overlap3Ref}
           className="absolute card-cream card-collage p-4"

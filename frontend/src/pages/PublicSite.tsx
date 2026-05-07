@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navigation from '../components/Navigation';
-import MagneticCursor from '../components/MagneticCursor';
+import CorporateIntroSection from '../sections/CorporateIntroSection';
 import HeroSection from '../sections/HeroSection';
 import TasteSection from '../sections/TasteSection';
 import BotanicalBrewsSection from '../sections/BotanicalBrewsSection';
@@ -17,12 +17,22 @@ import VisitSection from '../sections/VisitSection';
 import NewsletterSection from '../sections/NewsletterSection';
 import FooterSection from '../sections/FooterSection';
 import { ContentProvider } from '../lib/content';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function PublicSite() {
   const mainRef = useRef<HTMLDivElement>(null);
+  const snapTriggerRef = useRef<ReturnType<typeof ScrollTrigger.create> | null>(null);
   const location = useLocation();
+  const isMobile = useIsMobile();
+
+  useLayoutEffect(() => {
+    if (location.hash) return;
+    window.scrollTo(0, 0);
+    const timer = window.setTimeout(() => window.scrollTo(0, 0), 0);
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, location.hash]);
 
   // Scroll to hash target when arriving via /#section links
   useEffect(() => {
@@ -43,6 +53,7 @@ export default function PublicSite() {
   }, [location]);
 
   useEffect(() => {
+    if (isMobile) return;
     const setupGlobalSnap = () => {
       if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
       const pinned = ScrollTrigger.getAll()
@@ -58,7 +69,7 @@ export default function PublicSite() {
         center: (st.start + ((st.end ?? st.start) - st.start) * 0.5) / maxScroll,
       }));
 
-      ScrollTrigger.create({
+      snapTriggerRef.current = ScrollTrigger.create({
         snap: {
           snapTo: (value: number) => {
             const inPinned = pinnedRanges.some(
@@ -82,30 +93,67 @@ export default function PublicSite() {
     const timer = setTimeout(setupGlobalSnap, 500);
     return () => {
       clearTimeout(timer);
-      ScrollTrigger.getAll().forEach(st => st.kill());
+      snapTriggerRef.current?.kill();
+      snapTriggerRef.current = null;
     };
-  }, []);
+  }, [isMobile]);
+
+  // Synchronously reveal above-the-fold elements before first paint — eliminates blank flash.
+  useLayoutEffect(() => {
+    if (!isMobile) return;
+    const vh = window.innerHeight;
+    document.querySelectorAll<HTMLElement>('.mobile-reveal, .mobile-reveal-stagger').forEach(el => {
+      if (el.getBoundingClientRect().top < vh) {
+        el.classList.add('is-visible');
+      }
+    });
+  }, [isMobile, location.pathname]);
+
+  useEffect(() => {
+    if (!isMobile) return;
+
+    // Only observe elements not already revealed above the fold.
+    const revealEls = Array.from(
+      document.querySelectorAll<HTMLElement>('.mobile-reveal, .mobile-reveal-stagger')
+    ).filter(el => !el.classList.contains('is-visible'));
+
+    if (revealEls.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0 },
+    );
+
+    revealEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isMobile, location.pathname]);
 
   return (
     <ContentProvider>
       <div ref={mainRef} className="relative">
-        <div className="grain-overlay" />
-        <div className="vignette" />
-        <MagneticCursor />
+        {!isMobile && <div className="grain-overlay" />}
+        {!isMobile && <div className="vignette" />}
         <Navigation />
         <main className="relative">
+          <CorporateIntroSection className="z-[5]" />
           <HeroSection className="z-10" />
           <TasteSection className="z-20" />
           <BotanicalBrewsSection className="z-30" />
           <PlantBasedSection className="z-40" />
           <FreshlyRoastedSection className="z-50" />
-          <BaristaCraftSection className="z-60" />
-          <SlowDownSection className="z-70" />
-          <CoffeeSelectionSection className="z-80" />
-          <MenuCtaSection className="z-90" />
-          <VisitSection className="z-100" />
-          <NewsletterSection className="z-110" />
-          <FooterSection className="z-120" />
+          <BaristaCraftSection className="z-[60]" />
+          <SlowDownSection className="z-[70]" />
+          <CoffeeSelectionSection className="z-[80]" />
+          <MenuCtaSection className="z-[90]" />
+          <VisitSection className="z-[100]" />
+          <NewsletterSection className="z-[110]" />
+          <FooterSection className="z-[120]" />
         </main>
       </div>
     </ContentProvider>

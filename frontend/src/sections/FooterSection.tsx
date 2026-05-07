@@ -2,9 +2,10 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Phone, Mail, Send, Coffee } from 'lucide-react';
+import { Phone, Mail, Send, Coffee, Instagram, Facebook, Music2 } from 'lucide-react';
 import { useT } from '../lib/content';
 import { useTheme } from '../lib/theme';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,6 +18,7 @@ interface FooterSectionProps {
 const FooterSection = ({ className = '', compact = false }: FooterSectionProps) => {
   const t = useT();
   const { brand } = useTheme();
+  const isMobile = useIsMobile();
   const sectionRef = useRef<HTMLDivElement>(null);
   const columnsRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
@@ -30,7 +32,7 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
 
     // In compact mode (subpages w/ short content), skip scroll-triggered hide-then-reveal
     // so the footer never sits as a blank dark band waiting for a scroll that won't happen.
-    if (compact) return;
+    if (compact || isMobile) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -68,7 +70,7 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
     }, section);
 
     return () => ctx.revert();
-  }, [compact]);
+  }, [compact, isMobile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,17 +80,38 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
     }
   };
 
+  const brandRevealClass = compact ? '' : 'mobile-reveal';
+  const columnsRevealClass = compact ? '' : 'mobile-reveal-stagger';
+  const footerRevealClass = compact ? '' : 'mobile-reveal';
+  const socialLinks = [
+    {
+      label: t('footer.social_ig', 'Instagram'),
+      url: t('footer.social_ig_url', ''),
+      Icon: Instagram,
+    },
+    {
+      label: t('footer.social_fb', 'Facebook'),
+      url: t('footer.social_fb_url', ''),
+      Icon: Facebook,
+    },
+    {
+      label: t('footer.social_tt', 'TikTok'),
+      url: t('footer.social_tt_url', ''),
+      Icon: Music2,
+    },
+  ].filter((item) => item.url.trim() !== '');
+
   return (
     <section
       ref={sectionRef}
       id="contact"
       className={`${
         compact ? 'relative' : 'section-flowing'
-      } bg-[var(--brand-primary-dark)] dotted-grid ${compact ? 'py-12' : 'py-20'} ${className}`}
+      } bg-[var(--brand-primary-dark)] dotted-grid ${compact ? 'py-8 sm:py-10' : 'py-20'} ${className}`}
     >
       <div className="max-w-6xl mx-auto px-6 lg:px-12">
         {/* Brand row */}
-        <div className="flex items-center gap-4 mb-12 pb-8 border-b border-[color-mix(in_srgb,var(--text-on-dark)_10%,transparent)]">
+        <div className={`flex items-center gap-4 ${compact ? 'mb-8 pb-6' : 'mb-12 pb-8'} border-b border-[color-mix(in_srgb,var(--text-on-dark)_10%,transparent)] ${brandRevealClass}`}>
           <img
             src={brand['logo-mark-url'] || '/images/logo-mark.svg'}
             alt=""
@@ -106,7 +129,7 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
 
         <div
           ref={columnsRef}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-16"
+          className={`grid grid-cols-1 lg:grid-cols-2 ${compact ? 'gap-8 lg:gap-12 mb-10' : 'gap-12 lg:gap-20 mb-16'} ${columnsRevealClass}`}
         >
           {/* Left Column - Contact Form */}
           <div>
@@ -202,16 +225,12 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                 >
                   {t('footer.link_story', 'Hikâyemiz')}
                 </Link>
-                <a
-                  href="#visit"
+                <Link
+                  to="/#visit"
                   className="text-sm text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] hover:text-[var(--brand-accent)] transition-colors"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.querySelector('#visit')?.scrollIntoView({ behavior: 'smooth' });
-                  }}
                 >
                   {t('footer.link_visit', 'Ziyaret')}
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -220,16 +239,29 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
         {/* Footer Row */}
         <div
           ref={footerRef}
-          className="pt-8 border-t border-[color-mix(in_srgb,var(--text-on-dark)_10%,transparent)] flex flex-col sm:flex-row items-center justify-between gap-4"
+          className={`pt-8 border-t border-[color-mix(in_srgb,var(--text-on-dark)_10%,transparent)] flex flex-col sm:flex-row items-center justify-between gap-4 ${footerRevealClass}`}
         >
           <p className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)]">
             {t('footer.copyright', '© 2026 Lume Mia Coffee. Tüm hakları saklıdır.')}
           </p>
           <div className="flex gap-6">
-            <a href="#" className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] transition-colors">
+            {socialLinks.map(({ label, url, Icon }) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+                title={label}
+                className="text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[var(--brand-accent)] transition-colors"
+              >
+                <Icon className="h-4 w-4" />
+              </a>
+            ))}
+            <a href={`mailto:${t('footer.email', 'merhaba@lumemia.coffee')}?subject=${encodeURIComponent(t('footer.privacy', 'Gizlilik'))}`} className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] transition-colors">
               {t('footer.privacy', 'Gizlilik')}
             </a>
-            <a href="#" className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] transition-colors">
+            <a href={`mailto:${t('footer.email', 'merhaba@lumemia.coffee')}?subject=${encodeURIComponent(t('footer.accessibility', 'Erişilebilirlik'))}`} className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] transition-colors">
               {t('footer.accessibility', 'Erişilebilirlik')}
             </a>
           </div>

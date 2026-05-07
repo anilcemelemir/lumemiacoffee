@@ -26,7 +26,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
   const tagsRef = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
 
-  // Auto-play entrance animation on load
   useEffect(() => {
     if (hasAnimated.current) return;
     hasAnimated.current = true;
@@ -35,7 +34,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.3 });
 
-      // Left image card entrance
       tl.fromTo(
         leftCardRef.current,
         { opacity: 0, x: '-12vw', rotateZ: -2, scale: 0.98 },
@@ -43,7 +41,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
         0
       );
 
-      // Right collage entrance
       tl.fromTo(
         rightCollageRef.current,
         { opacity: 0, x: '14vw', rotateZ: 2, scale: 0.98 },
@@ -51,7 +48,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
         0
       );
 
-      // Text panel entrance
       tl.fromTo(
         textPanelRef.current,
         { y: '8vh', opacity: 0 },
@@ -59,7 +55,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
         0.25
       );
 
-      // Tags stagger entrance
       if (tagsRef.current) {
         const tags = tagsRef.current.children;
         tl.fromTo(
@@ -74,8 +69,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
     return () => ctx.revert();
   }, []);
 
-  // Scroll-driven animation — desktop pins & exits, mobile gets a soft
-  // parallax + slide-in reveal so the structural layout stays intact.
   useLayoutEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -106,7 +99,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
       });
     };
 
-    // -------- DESKTOP (>= 768px): full pinned exit timeline --------
     mm.add('(min-width: 768px)', () => {
       setAcceleratedLayers();
 
@@ -139,7 +131,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
       );
     });
 
-    // -------- MOBILE (< 768px): pinned exit parity in a vertical viewport --------
     mm.add('(max-width: 767px)', () => {
       setAcceleratedLayers();
 
@@ -162,8 +153,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           invalidateOnRefresh: true,
           onRefreshInit: resetMobileLayers,
           onLeaveBack: resetMobileLayers,
-          // ignoreMobileResize prevents browser chrome show/hide from
-          // reflowing the pinned mobile hero mid-scrub.
           // @ts-expect-error - valid runtime option, missing in older typings
           ignoreMobileResize: true,
         },
@@ -208,7 +197,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
       ref={sectionRef}
       className={`section-pinned hero-section bg-[var(--brand-primary-dark)] dotted-grid ${className}`}
     >
-      {/* Left Image Card */}
       <div
         ref={leftCardRef}
         className="absolute hero-left-card card-collage overflow-hidden z-0"
@@ -227,7 +215,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
         />
       </div>
 
-      {/* Right Rotating Collage */}
       <div
         ref={rightCollageRef}
         className="absolute hero-right-collage z-0"
@@ -238,7 +225,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           height: '68vh',
         }}
       >
-        {/* Base Photo Card */}
         <div className="absolute hero-collage-base inset-0 card-collage overflow-hidden">
           <DynamicImage
             src={t('media.hero.collage', '/images/hero_collage.jpg')}
@@ -248,7 +234,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           />
         </div>
 
-        {/* Overlapping Photo Strip (Top-Left) */}
         <div
           className="absolute hero-overlay-strip card-collage overflow-hidden"
           style={{
@@ -266,7 +251,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           />
         </div>
 
-        {/* Botanical Outline Card (Top-Right) */}
         <div
           ref={botanicalCardRef}
           className="absolute hero-botanical-card card-collage bg-[color-mix(in_srgb,var(--surface-cream)_10%,transparent)] backdrop-blur-sm flex items-center justify-center botanical-gentle"
@@ -294,7 +278,6 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           </svg>
         </div>
 
-        {/* Cream Text Panel with Tags (Bottom) */}
         <div
           ref={textPanelRef}
           className="absolute hero-text-panel z-20 card-cream card-collage p-6 lg:p-8"
@@ -305,7 +288,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           }}
         >
           <h1 className="font-display text-h2 text-[var(--brand-primary-dark)] mb-4">
-            {splitLines(t('hero.main_title', 'BOTANİK\nDEMLEMELER')).map((line, i, a) => (
+            {splitLines(t('hero.main_title', 'BOTANIK\nDEMLEMELER')).map((line, i, a) => (
               <span key={i}>
                 {line}
                 {i < a.length - 1 && <br />}
@@ -314,7 +297,7 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
           </h1>
 
           <div ref={tagsRef} className="flex flex-wrap gap-2 mb-4">
-            {splitList(t('hero.tags', 'Tek Menşe, Küçük Parti, Yerinde Kavrulmuş')).map((tag) => (
+            {splitList(t('hero.tags', 'Tek Mense, Kucuk Parti, Yerinde Kavrulmus')).map((tag) => (
               <span key={tag} className="tag-chip">{tag}</span>
             ))}
           </div>
@@ -323,13 +306,12 @@ const HeroSection = ({ className = '' }: HeroSectionProps) => {
             to="/menu"
             className="inline-flex items-center gap-2 text-micro text-[var(--brand-primary-dark)] hover:text-[var(--brand-accent)] transition-colors group"
           >
-            {t('hero.cta', 'Menüyü keşfet')}
+            {t('hero.cta', 'Menuyu kesfet')}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>
 
-      {/* Logo Watermark */}
       <div
         ref={watermarkRef}
         className="absolute hero-watermark left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none z-0"

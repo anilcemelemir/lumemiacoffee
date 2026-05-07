@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useT } from '../lib/content';
 import { DynamicImage } from '../components/DynamicImage';
+import { useIsMobile } from '../hooks/use-mobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,8 +18,10 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
   const centerCardRef = useRef<HTMLDivElement>(null);
   const rightCardRef = useRef<HTMLDivElement>(null);
   const textPanelRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
+    if (isMobile) return;
     const section = sectionRef.current;
     if (!section) return;
     if (typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches) return;
@@ -34,8 +37,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         },
       });
 
-      // ENTRANCE (0%-30%)
-      // Left tall card
       scrollTl.fromTo(
         leftCardRef.current,
         { x: '-60vw', rotateZ: -5, opacity: 0 },
@@ -43,7 +44,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         0
       );
 
-      // Center top card
       scrollTl.fromTo(
         centerCardRef.current,
         { y: '-40vh', rotateZ: 3, opacity: 0 },
@@ -51,7 +51,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         0
       );
 
-      // Right tall card
       scrollTl.fromTo(
         rightCardRef.current,
         { x: '60vw', rotateZ: 5, opacity: 0 },
@@ -59,7 +58,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         0
       );
 
-      // Text panel
       scrollTl.fromTo(
         textPanelRef.current,
         { y: '12vh', opacity: 0 },
@@ -67,7 +65,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         0.12
       );
 
-      // EXIT (70%-100%)
       scrollTl.to(
         leftCardRef.current,
         { x: '-30vw', opacity: 0, rotateZ: -2, ease: 'power2.in' },
@@ -88,14 +85,29 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
     }, section);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile]);
+
+  if (isMobile) {
+    return (
+      <section className={`section-flowing bg-[var(--brand-primary-dark)] dotted-grid py-20 ${className}`}>
+        <div className="max-w-xl mx-auto px-5 space-y-4 mobile-reveal-stagger">
+          <div className="card-collage overflow-hidden aspect-[4/5]"><DynamicImage src={t('media.taste.hand', '/images/moment_hand.jpg')} alt="Hand holding coffee cup" className="w-full h-full object-cover" /></div>
+          <div className="card-collage overflow-hidden aspect-[4/3]"><DynamicImage src={t('media.taste.latte', '/images/moment_latte.jpg')} alt="Latte art" className="w-full h-full object-cover" /></div>
+          <div className="card-collage overflow-hidden aspect-[4/5]"><DynamicImage src={t('media.taste.pour', '/images/moment_pour.jpg')} alt="Coffee moment" className="w-full h-full object-cover" /></div>
+          <div className="card-cream card-collage p-5">
+            <h2 className="font-display text-h3 text-[var(--brand-primary-dark)] mb-2">{t('taste.title', 'ANI TADIN')}</h2>
+            <p className="text-body text-[color-mix(in_srgb,var(--brand-primary-dark)_80%,transparent)]">{t('taste.body', 'Spesiyalite kahve, hafif lezzetler ve sehrin yemyesil bir kosesinde sakin sabahlar.')}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
       ref={sectionRef}
       className={`section-pinned bg-[var(--brand-primary-dark)] dotted-grid ${className}`}
     >
-      {/* Left Tall Card - Hand holding cup */}
       <div
         ref={leftCardRef}
         className="absolute card-collage overflow-hidden"
@@ -113,7 +125,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         />
       </div>
 
-      {/* Center Top Card - Latte art */}
       <div
         ref={centerCardRef}
         className="absolute card-collage overflow-hidden"
@@ -131,7 +142,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
         />
       </div>
 
-      {/* Right Tall Card - Text + small photo */}
       <div
         ref={rightCardRef}
         className="absolute card-collage overflow-hidden"
@@ -148,7 +158,6 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
           className="w-full h-full object-cover"
         />
 
-        {/* Text Panel Overlay */}
         <div
           ref={textPanelRef}
           className="absolute z-20 bottom-0 left-0 right-0 card-cream p-6"
@@ -156,8 +165,8 @@ const TasteSection = ({ className = '' }: TasteSectionProps) => {
           <h2 className="font-display text-h3 text-[var(--brand-primary-dark)] mb-3">
             {t('taste.title', 'ANI TADIN')}
           </h2>
-          <p className="text-body text-[color-mix(in_srgb,var(--brand-primary-dark)_80%,transparent)] mb-4 leading-relaxed">
-            {t('taste.body', 'Spesiyalite kahve, hafif lezzetler ve şehrin yemyeşil bir köşesinde sakin sabahlar.')}
+          <p className="text-body text-[color-mix(in_srgb,var(--brand-primary-dark)_80%,transparent)] leading-relaxed">
+            {t('taste.body', 'Spesiyalite kahve, hafif lezzetler ve sehrin yemyesil bir kosesinde sakin sabahlar.')}
           </p>
         </div>
       </div>
