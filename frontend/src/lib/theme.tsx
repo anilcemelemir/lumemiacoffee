@@ -60,6 +60,34 @@ function applyToRoot(colors: Record<string, string>, fonts: Record<string, strin
   }
 }
 
+const ICON_MIME: Record<string, string> = {
+  ico: 'image/x-icon',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  svg: 'image/svg+xml',
+  webp: 'image/webp',
+  gif: 'image/gif',
+};
+
+function setLinkIcon(rel: string, href: string | undefined) {
+  const head = document.head;
+  // Remove every existing matching link so the browser re-evaluates the slot.
+  head.querySelectorAll(`link[rel="${rel}"]`).forEach((el) => el.remove());
+  if (!href) return;
+  const el = document.createElement('link');
+  el.rel = rel;
+  el.href = href;
+  const ext = href.match(/\.(\w+)(?:\?|$)/)?.[1]?.toLowerCase();
+  if (ext && ICON_MIME[ext]) el.type = ICON_MIME[ext];
+  head.appendChild(el);
+}
+
+function applyIcons(brand: Record<string, string>) {
+  setLinkIcon('icon', brand['favicon-url']);
+  setLinkIcon('apple-touch-icon', brand['apple-touch-icon-url']);
+}
+
 function resolveThemeColors(input: Record<string, string>): Record<string, string> {
   const colors = { ...FALLBACK.colors, ...input };
   const primary = colors["brand-primary"] || FALLBACK.colors["brand-primary"];
@@ -109,6 +137,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setFonts((prev) => ({ ...prev, ...f }));
       setLayout(mergedLayout);
       applyToRoot(resolvedColors, { ...fonts, ...f });
+      applyIcons({ ...FALLBACK.brand, ...b });
       document.documentElement.style.setProperty('--mobile-heading-scale', mergedLayout['mobile.heading.scale'] ?? '1');
       document.documentElement.style.setProperty('--mobile-body-scale', mergedLayout['mobile.body.scale'] ?? '1');
       document.documentElement.style.setProperty('--mobile-nav-scale', mergedLayout['mobile.nav.scale'] ?? '1');

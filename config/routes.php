@@ -6,11 +6,14 @@ use Lumemia\API\V1\Admin\CategoriesController as AdminCategories;
 use Lumemia\API\V1\Admin\ProductsController as AdminProducts;
 use Lumemia\API\V1\Admin\SiteContentController as AdminContent;
 use Lumemia\API\V1\Admin\AppearanceController as AdminAppearance;
+use Lumemia\API\V1\Admin\SeoController as AdminSeo;
 use Lumemia\API\V1\Admin\UploadController as AdminUploads;
 use Lumemia\API\V1\Controllers\AuthController;
 use Lumemia\API\V1\Controllers\ContentController;
 use Lumemia\API\V1\Controllers\MenuController;
 use Lumemia\API\V1\Controllers\AppearanceController;
+use Lumemia\API\V1\Controllers\SeoController;
+use Lumemia\API\V1\Controllers\SitemapController;
 use Lumemia\API\V1\StatusController;
 use Lumemia\Auth\AuthGuard;
 use Lumemia\Auth\Jwt;
@@ -32,6 +35,8 @@ return static function (Router $router, array $dbConfig): void {
     $router->get ('/api/v1/menu',       new MenuController());
     $router->get ('/api/v1/content',    new ContentController());
     $router->get ('/api/v1/appearance', new AppearanceController());
+    $router->get ('/api/v1/seo',        new SeoController());
+    $router->get ('/api/v1/sitemap.xml', new SitemapController());
 
     // ---------- Auth ----------
     $auth = new AuthController($jwt);
@@ -73,6 +78,11 @@ return static function (Router $router, array $dbConfig): void {
     $router->get('/api/v1/admin/appearance', $protect(fn (Request $r) => $app->index($r)));
     $router->put('/api/v1/admin/appearance', $protect(fn (Request $r) => $app->bulkUpdate($r)));
     $router->delete('/api/v1/admin/content/{key}', $protect(fn (Request $r) => $content->delete($r)));
+
+    // SEO & Analytics
+    $seo = new AdminSeo();
+    $router->get('/api/v1/admin/seo', $protect(fn (Request $r) => $seo->index($r)));
+    $router->put('/api/v1/admin/seo', $protect(fn (Request $r) => $seo->bulkUpdate($r)));
 
     // Uploads (multipart/form-data)
     $up = new AdminUploads();
