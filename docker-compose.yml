@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     container_name: lumemia_php
+    restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
@@ -25,6 +26,7 @@ services:
   web:
     image: nginx:1.27-alpine
     container_name: lumemia_nginx
+    restart: unless-stopped
     ports:
       - "${NGINX_PORT:-8080}:80"
     volumes:
@@ -59,6 +61,7 @@ services:
   pma:
     image: phpmyadmin:5
     container_name: lumemia_pma
+    restart: unless-stopped
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
