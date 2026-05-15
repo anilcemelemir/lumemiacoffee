@@ -79,8 +79,13 @@ final class CategoriesController
             return null;
         }
 
-        $sql = 'UPDATE categories SET ' . implode(', ', $fields) . ' WHERE id = :id';
-        Database::pdo()->prepare($sql)->execute($vals);
+        try {
+            $sql = 'UPDATE categories SET ' . implode(', ', $fields) . ' WHERE id = :id';
+            Database::pdo()->prepare($sql)->execute($vals);
+        } catch (PDOException $e) {
+            Response::error('Kategori güncellenemedi (slug benzersiz olmalı).', 409, ['detail' => $e->getMessage()]);
+            return null;
+        }
 
         return ['status' => 'ok', 'message' => 'Kategori güncellendi.'];
     }
@@ -89,6 +94,18 @@ final class CategoriesController
     public function delete(Request $r): ?array
     {
         $id = (int) ($r->params['id'] ?? 0);
+        if ($id <= 0) {
+            Response::error('Geçersiz kategori.', 404);
+            return null;
+        }
+
+        $countStmt = Database::pdo()->prepare('SELECT COUNT(*) FROM products WHERE category_id = :id');
+        $countStmt->execute([':id' => $id]);
+        if ((int) $countStmt->fetchColumn() > 0) {
+            Response::error('Bu kategoride ürün var. Önce ürünleri başka kategoriye taşıyın veya silin.', 409);
+            return null;
+        }
+
         $stmt = Database::pdo()->prepare('DELETE FROM categories WHERE id = :id');
         $stmt->execute([':id' => $id]);
 

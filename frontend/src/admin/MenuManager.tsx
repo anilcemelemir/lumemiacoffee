@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Star, Image as ImageIcon, Video, Pencil, Trash2, Plus, Check, X } from "lucide-react";
 import { api } from "../lib/api";
 import { MediaDropzone } from "../components/MediaDropzone";
@@ -24,6 +24,12 @@ type Product = {
 type CatList = { status: "ok"; data: Category[] };
 type ProdList = { status: "ok"; data: Product[] };
 
+const emptyCategory: Omit<Category, "id"> = {
+  name: "",
+  slug: "",
+  sort_order: 0,
+};
+
 const empty: Omit<Product, "id" | "category_name"> = {
   category_id: 0,
   name: "",
@@ -43,8 +49,19 @@ export function MenuManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Product | typeof empty | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | typeof emptyCategory | null>(
+    null,
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const productCountsByCategory = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const product of products) {
+      counts.set(product.category_id, (counts.get(product.category_id) ?? 0) + 1);
+    }
+    return counts;
+  }, [products]);
 
   async function reload() {
     const [c, p] = await Promise.all([
@@ -81,6 +98,33 @@ export function MenuManager() {
     }
   }
 
+  async function onSaveCategory(e: FormEvent) {
+    e.preventDefault();
+    if (!editingCategory) return;
+    setError(null);
+
+    const payload = {
+      name: editingCategory.name.trim(),
+      slug: editingCategory.slug.trim() || editingCategory.name.trim(),
+      sort_order: Number(editingCategory.sort_order) || 0,
+    };
+
+    try {
+      if ("id" in editingCategory) {
+        await api.put(`/api/v1/admin/categories/${editingCategory.id}`, payload, true);
+        setMessage("Kategori güncellendi.");
+      } else {
+        await api.post("/api/v1/admin/categories", payload, true);
+        setMessage("Kategori eklendi.");
+      }
+      setEditingCategory(null);
+      await reload();
+      window.setTimeout(() => setMessage(null), 2200);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kategori kaydedilemedi.");
+    }
+  }
+
   async function onDelete(id: number) {
     if (!confirm("Bu ürün silinsin mi?")) return;
     try {
@@ -90,6 +134,26 @@ export function MenuManager() {
       window.setTimeout(() => setMessage(null), 2200);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Silme hatası");
+    }
+  }
+
+  async function onDeleteCategory(category: Category) {
+    const productCount = productCountsByCategory.get(category.id) ?? 0;
+    if (productCount > 0) {
+      setError("Bu kategoride ürün var. Önce ürünleri başka kategoriye taşıyın veya silin.");
+      window.setTimeout(() => setError(null), 4000);
+      return;
+    }
+
+    if (!confirm(`"${category.name}" kategorisi silinsin mi?`)) return;
+
+    try {
+      await api.delete(`/api/v1/admin/categories/${category.id}`, true);
+      setMessage("Kategori silindi.");
+      await reload();
+      window.setTimeout(() => setMessage(null), 2200);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Kategori silinemedi.");
     }
   }
 
@@ -117,6 +181,7 @@ export function MenuManager() {
         </div>
         <button
           onClick={() => setEditing({ ...empty, category_id: categories[0]?.id ?? 0 })}
+          disabled={categories.length === 0}
           className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-primary)] text-[var(--text-on-dark)] rounded-full hover:bg-[var(--brand-primary-dark)] transition text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
@@ -134,6 +199,84 @@ export function MenuManager() {
           {error}
         </p>
       )}
+
+      <section className="bg-[var(--surface-paper)] rounded-2xl border border-[var(--border-soft)] overflow-hidden">
+        <div className="flex items-center justify-between gap-3 flex-wrap px-4 py-3 sm:px-5 sm:py-4 bg-[var(--surface-cream)] border-b border-[var(--border-soft)]">
+          <div>
+            <h3 className="font-display text-lg text-[var(--brand-primary)]">
+              Kategori Düzenleme
+            </h3>
+            <p className="text-xs text-[var(--text-muted)]">
+              {categories.length} kategori
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setEditingCategory({ ...emptyCategory })}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--brand-primary)] text-[var(--text-on-dark)] text-sm font-medium hover:bg-[var(--brand-primary-dark)] transition"
+          >
+            <Plus className="w-4 h-4" />
+            Yeni kategori
+          </button>
+        </div>
+
+        <div className="w-full max-w-full min-w-0 overflow-x-auto">
+          <table className="w-full min-w-[620px] text-sm">
+            <thead className="text-left text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              <tr>
+                <th className="px-4 py-3">Kategori</th>
+                <th className="px-4 py-3">Slug</th>
+                <th className="px-4 py-3 text-right">Sıra</th>
+                <th className="px-4 py-3 text-right">Ürün</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((category) => {
+                const productCount = productCountsByCategory.get(category.id) ?? 0;
+
+                return (
+                  <tr
+                    key={category.id}
+                    className="border-t border-[var(--border-soft)] hover:bg-[var(--surface-cream)]/50 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium text-[var(--text-primary)]">
+                      {category.name}
+                    </td>
+                    <td className="px-4 py-3 text-[var(--text-muted)]">
+                      <code>{category.slug}</code>
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">{category.sort_order}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{productCount}</td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => setEditingCategory(category)}
+                        className="inline-flex items-center gap-1 text-[var(--brand-primary)] hover:underline mr-3"
+                      >
+                        <Pencil className="w-3.5 h-3.5" /> Düzenle
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDeleteCategory(category)}
+                        disabled={productCount > 0}
+                        title={productCount > 0 ? "Önce bu kategorideki ürünleri taşıyın veya silin" : "Sil"}
+                        className={`inline-flex items-center gap-1 ${
+                          productCount > 0
+                            ? "text-[var(--text-muted)] cursor-not-allowed"
+                            : "text-red-700 hover:underline"
+                        }`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Sil
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <div className="w-full max-w-full min-w-0 overflow-x-auto bg-[var(--surface-paper)] rounded-2xl border border-[var(--border-soft)]">
         <table className="w-full min-w-[760px] text-sm">
@@ -263,6 +406,7 @@ export function MenuManager() {
                   onChange={(e) => setEditing({ ...editing, category_id: Number(e.target.value) })}
                   className={input}
                 >
+                  {categories.length === 0 && <option value={0}>Kategori yok</option>}
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -348,6 +492,74 @@ export function MenuManager() {
               <button
                 type="button"
                 onClick={() => setEditing(null)}
+                className="px-4 py-2 border border-[var(--border-soft)] rounded-full text-sm"
+              >
+                İptal
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 bg-[var(--brand-primary)] text-[var(--text-on-dark)] rounded-full text-sm hover:bg-[var(--brand-primary-dark)]"
+              >
+                Kaydet
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {editingCategory && (
+        <div
+          className="fixed inset-0 bg-stone-900/60 flex items-center justify-center z-50 p-3 sm:p-4"
+          onClick={() => setEditingCategory(null)}
+        >
+          <form
+            onSubmit={onSaveCategory}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-[var(--surface-paper)] rounded-2xl p-4 sm:p-6 w-full max-w-[min(34rem,calc(100vw-1.5rem))] min-w-0 space-y-4 max-h-[90dvh] overflow-y-auto overflow-x-hidden"
+          >
+            <h3 className="text-xl font-display text-[var(--brand-primary)]">
+              {"id" in editingCategory ? "Kategoriyi düzenle" : "Yeni kategori"}
+            </h3>
+
+            <Field label="Kategori adı">
+              <input
+                required
+                value={editingCategory.name}
+                onChange={(e) =>
+                  setEditingCategory({ ...editingCategory, name: e.target.value })
+                }
+                className={input}
+              />
+            </Field>
+
+            <Field label="Slug" hint="Boş bırakırsanız kategori adından otomatik üretilir.">
+              <input
+                value={editingCategory.slug}
+                onChange={(e) =>
+                  setEditingCategory({ ...editingCategory, slug: e.target.value })
+                }
+                className={input}
+              />
+            </Field>
+
+            <Field label="Sıralama">
+              <input
+                type="number"
+                value={editingCategory.sort_order}
+                onChange={(e) =>
+                  setEditingCategory({
+                    ...editingCategory,
+                    sort_order: Number(e.target.value),
+                  })
+                }
+                className={input}
+              />
+            </Field>
+
+            <div className="flex justify-end gap-2 pt-4 border-t border-[var(--border-soft)]">
+              <button
+                type="button"
+                onClick={() => setEditingCategory(null)}
                 className="px-4 py-2 border border-[var(--border-soft)] rounded-full text-sm"
               >
                 İptal

@@ -23,6 +23,7 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
   const columnsRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [hasConsent, setHasConsent] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
   useLayoutEffect(() => {
@@ -74,9 +75,10 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.email && formData.message) {
+    if (formData.name && formData.email && formData.message && hasConsent) {
       setIsSent(true);
       setFormData({ name: '', email: '', message: '' });
+      setHasConsent(false);
     }
   };
 
@@ -170,13 +172,33 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                   rows={4}
                   className="w-full px-5 py-3.5 bg-[color-mix(in_srgb,var(--text-on-dark)_10%,transparent)] border border-[color-mix(in_srgb,var(--text-on-dark)_20%,transparent)] rounded-xl text-[var(--text-on-dark)] placeholder:text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] focus:outline-none focus:border-[var(--brand-accent)] transition-colors text-sm resize-none"
                 />
-                <button
-                  type="submit"
-                  className="btn-primary inline-flex items-center gap-2"
-                >
-                  {t('footer.field_submit', 'Mesajı gönder')}
-                  <Send className="w-4 h-4" />
-                </button>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+                  <button
+                    type="submit"
+                    disabled={!hasConsent}
+                    className={`btn-primary inline-flex items-center justify-center gap-2 ${
+                      hasConsent ? '' : 'cursor-not-allowed opacity-55'
+                    }`}
+                  >
+                    {t('footer.field_submit', 'Mesajı gönder')}
+                    <Send className="w-4 h-4" />
+                  </button>
+                  <label className="flex min-w-0 items-start gap-3 text-sm leading-relaxed text-[color-mix(in_srgb,var(--text-on-dark)_66%,transparent)]">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={hasConsent}
+                      onChange={(e) => setHasConsent(e.target.checked)}
+                      className="mt-1 h-4 w-4 shrink-0 rounded border-[color-mix(in_srgb,var(--text-on-dark)_28%,transparent)] bg-transparent accent-[var(--brand-accent)]"
+                    />
+                    <span>
+                      {t(
+                        'footer.consent',
+                        'Gönderdiğim verilerimin toplanmasını ve saklanmasını kabul ediyorum.',
+                      )}
+                    </span>
+                  </label>
+                </div>
               </form>
             )}
           </div>
@@ -258,12 +280,6 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                 <Icon className="h-4 w-4" />
               </a>
             ))}
-            <a href={`mailto:${t('footer.email', 'merhaba@lumemia.coffee')}?subject=${encodeURIComponent(t('footer.privacy', 'Gizlilik'))}`} className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] transition-colors">
-              {t('footer.privacy', 'Gizlilik')}
-            </a>
-            <a href={`mailto:${t('footer.email', 'merhaba@lumemia.coffee')}?subject=${encodeURIComponent(t('footer.accessibility', 'Erişilebilirlik'))}`} className="text-micro text-[color-mix(in_srgb,var(--text-on-dark)_40%,transparent)] hover:text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] transition-colors">
-              {t('footer.accessibility', 'Erişilebilirlik')}
-            </a>
           </div>
         </div>
       </div>
