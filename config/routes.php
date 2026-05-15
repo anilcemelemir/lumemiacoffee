@@ -7,6 +7,7 @@ use Lumemia\API\V1\Admin\ProductsController as AdminProducts;
 use Lumemia\API\V1\Admin\SiteContentController as AdminContent;
 use Lumemia\API\V1\Admin\AppearanceController as AdminAppearance;
 use Lumemia\API\V1\Admin\SeoController as AdminSeo;
+use Lumemia\API\V1\Admin\SubmissionsController as AdminSubmissions;
 use Lumemia\API\V1\Admin\UploadController as AdminUploads;
 use Lumemia\API\V1\Controllers\AuthController;
 use Lumemia\API\V1\Controllers\ContentController;
@@ -14,6 +15,7 @@ use Lumemia\API\V1\Controllers\MenuController;
 use Lumemia\API\V1\Controllers\AppearanceController;
 use Lumemia\API\V1\Controllers\SeoController;
 use Lumemia\API\V1\Controllers\SitemapController;
+use Lumemia\API\V1\Controllers\SubmissionController;
 use Lumemia\API\V1\StatusController;
 use Lumemia\Auth\AuthGuard;
 use Lumemia\Auth\Jwt;
@@ -37,6 +39,9 @@ return static function (Router $router, array $dbConfig): void {
     $router->get ('/api/v1/appearance', new AppearanceController());
     $router->get ('/api/v1/seo',        new SeoController());
     $router->get ('/api/v1/sitemap.xml', new SitemapController());
+    $submissions = new SubmissionController();
+    $router->post('/api/v1/newsletter', fn (Request $r) => $submissions->newsletter($r));
+    $router->post('/api/v1/contact-messages', fn (Request $r) => $submissions->contactMessage($r));
 
     // ---------- Auth ----------
     $auth = new AuthController($jwt);
@@ -83,6 +88,14 @@ return static function (Router $router, array $dbConfig): void {
     $seo = new AdminSeo();
     $router->get('/api/v1/admin/seo', $protect(fn (Request $r) => $seo->index($r)));
     $router->put('/api/v1/admin/seo', $protect(fn (Request $r) => $seo->bulkUpdate($r)));
+
+    // Submissions
+    $subAdmin = new AdminSubmissions();
+    $router->get('/api/v1/admin/newsletter-subscribers', $protect(fn (Request $r) => $subAdmin->subscribers($r)));
+    $router->delete('/api/v1/admin/newsletter-subscribers/{id}', $protect(fn (Request $r) => $subAdmin->deleteSubscriber($r)));
+    $router->get('/api/v1/admin/contact-messages', $protect(fn (Request $r) => $subAdmin->messages($r)));
+    $router->patch('/api/v1/admin/contact-messages/{id}', $protect(fn (Request $r) => $subAdmin->updateMessage($r)));
+    $router->delete('/api/v1/admin/contact-messages/{id}', $protect(fn (Request $r) => $subAdmin->deleteMessage($r)));
 
     // Uploads (multipart/form-data)
     $up = new AdminUploads();

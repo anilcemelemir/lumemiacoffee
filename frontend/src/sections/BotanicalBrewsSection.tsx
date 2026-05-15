@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
-import { DynamicImage } from '../components/DynamicImage';
 import { useIsMobile } from '../hooks/use-mobile';
 import { splitLines, useT } from '../lib/content';
 
@@ -59,14 +58,6 @@ const BotanicalBrewsSection = ({ className = '' }: BotanicalBrewsSectionProps) =
           <div className="text-center">
             <h2 className="font-display text-h1 text-[var(--text-on-dark)]">{lines[0] ?? ''}</h2>
             <h2 className="font-display text-h1 text-[var(--brand-accent)]">{lines[1] ?? ''}</h2>
-          </div>
-
-          <div className="card-collage overflow-hidden aspect-[4/5] my-6">
-            <DynamicImage
-              src={t('media.plant.jug', '/images/plant_jug.jpg')}
-              alt="Botanical brew being prepared"
-              className="w-full h-full object-cover"
-            />
           </div>
 
           <div className="card-cream card-collage p-5 text-left">

@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Phone, Mail, Send, Coffee, Instagram, Facebook, Music2 } from 'lucide-react';
+import { api } from '../lib/api';
 import { useT } from '../lib/content';
 import { useTheme } from '../lib/theme';
 import { useIsMobile } from '../hooks/use-mobile';
@@ -23,8 +24,11 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
   const columnsRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [website, setWebsite] = useState('');
   const [hasConsent, setHasConsent] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -73,12 +77,22 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
     return () => ctx.revert();
   }, [compact, isMobile]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.email && formData.message && hasConsent) {
+    if (!formData.name || !formData.email || !formData.message || !hasConsent || isSubmitting) return;
+
+    setSubmitError('');
+    setIsSubmitting(true);
+    try {
+      await api.post('/api/v1/contact-messages', { ...formData, consent: hasConsent, website });
       setIsSent(true);
       setFormData({ name: '', email: '', message: '' });
+      setWebsite('');
       setHasConsent(false);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Mesaj kaydedilemedi.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -150,7 +164,17 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="relative space-y-4">
+                <input
+                  type="text"
+                  name="website"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-[-9999px] top-auto h-px w-px opacity-0"
+                />
                 <input
                   type="text"
                   value={formData.name}
@@ -175,12 +199,12 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
                   <button
                     type="submit"
-                    disabled={!hasConsent}
+                    disabled={!hasConsent || isSubmitting}
                     className={`btn-primary inline-flex items-center justify-center gap-2 ${
-                      hasConsent ? '' : 'cursor-not-allowed opacity-55'
+                      hasConsent && !isSubmitting ? '' : 'cursor-not-allowed opacity-55'
                     }`}
                   >
-                    {t('footer.field_submit', 'Mesajı gönder')}
+                    {isSubmitting ? 'Kaydediliyor...' : t('footer.field_submit', 'Mesajı gönder')}
                     <Send className="w-4 h-4" />
                   </button>
                   <label className="flex min-w-0 items-start gap-3 text-sm leading-relaxed text-[color-mix(in_srgb,var(--text-on-dark)_66%,transparent)]">
@@ -199,6 +223,11 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                     </span>
                   </label>
                 </div>
+                {submitError && (
+                  <p className="text-sm text-[color-mix(in_srgb,#fff_76%,#f87171)]">
+                    {submitError}
+                  </p>
+                )}
               </form>
             )}
           </div>

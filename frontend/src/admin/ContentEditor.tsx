@@ -26,6 +26,12 @@ const HIDDEN_CONTENT_KEYS = new Set([
   "menu.extras_title",
   "menu.tag_hot",
   "menu.tag_iced",
+  "newsletter.social_ig",
+  "newsletter.social_ig_url",
+  "newsletter.social_fb",
+  "newsletter.social_fb_url",
+  "newsletter.social_tt",
+  "newsletter.social_tt_url",
 ]);
 
 const DEFAULT_CONTENT_ITEMS: ContentItem[] = [
