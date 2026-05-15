@@ -37,7 +37,7 @@ function StoryBody() {
   const intro = t("story.intro", "Lume Mia, sakin sabahlar ve özenle hazırlanmış demlemeler üzerine kurulu bir botanik kahve atölyesidir.");
   const bodyHtml = t("story.body_html", "<p>Hikâyemiz çok yakında burada olacak.</p>");
   const ctaLabel = t("story.cta_label", "Menüyü İncele");
-  const heroImage = t("story.image", "/images/hero_latte_detail.jpg");
+  const heroImage = t("story.image", "/images/hero_latte.jpg");
 
   const cleanBody = DOMPurify.sanitize(bodyHtml, {
     ALLOWED_TAGS: ["p", "br", "strong", "b", "em", "i", "u", "h2", "h3", "h4", "ul", "ol", "li", "blockquote", "a"],
@@ -69,6 +69,7 @@ function StoryBody() {
           <div className="lg:col-span-5">
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden card-collage">
               <DynamicImage
+                key={heroImage}
                 src={heroImage}
                 alt={t("story.title", "Hikâyemiz")}
                 className="w-full h-full object-cover"
