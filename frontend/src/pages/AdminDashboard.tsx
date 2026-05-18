@@ -219,8 +219,9 @@ function SystemPanel({
   user: { username: string; role: string } | null;
   onLogout: () => void;
 }) {
-  type Status = { status?: string; database?: { reachable?: boolean } } | null;
+  type Status = { status?: string; database?: { connected?: boolean; reachable?: boolean } } | null;
   const [status, setStatus] = useState<Status>(null);
+  const databaseConnected = status?.database?.connected ?? status?.database?.reachable ?? false;
   useEffect(() => {
     api.get<NonNullable<Status>>("/api/v1/status").then((s) => setStatus(s)).catch(() => {});
   }, []);
@@ -250,8 +251,8 @@ function SystemPanel({
         <h3 className="text-xs uppercase tracking-[0.3em] text-[var(--brand-accent)] mb-4">API Durumu</h3>
         <p className="text-sm">
           Veritabanı:{" "}
-          <span className={status?.database?.reachable ? "text-green-700" : "text-red-700"}>
-            {status?.database?.reachable ? "Bağlı" : "Erişilemiyor"}
+          <span className={databaseConnected ? "text-green-700" : "text-red-700"}>
+            {databaseConnected ? "Bağlı" : "Erişilemiyor"}
           </span>
         </p>
       </section>

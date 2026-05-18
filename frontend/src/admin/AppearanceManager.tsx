@@ -30,6 +30,17 @@ function uploadPrefixFor(key: string): string {
   return "logo";
 }
 
+function uploadAspectFor(key: string): string | undefined {
+  if (key === "favicon-url" || key === "apple-touch-icon-url") return "1:1";
+  return undefined;
+}
+
+function uploadHintFor(key: string): string | undefined {
+  if (key === "favicon-url") return "Kare PNG/WebP önerilir; tarayıcı sekmesinde görünür.";
+  if (key === "apple-touch-icon-url") return "Kare PNG/WebP önerilir; iOS ana ekran kısayolunda kullanılır.";
+  return undefined;
+}
+
 const OPTION_CHOICES: Record<string, { value: string; label: string }[]> = {
   "menu_cta.background": [
     { value: "dotted", label: "Bordo + dotted desen" },
@@ -174,7 +185,9 @@ export function AppearanceManager() {
                         value={current || null}
                         onChange={(url) => setField(it.key, url ?? "", it.value)}
                         prefix={uploadPrefixFor(it.key)}
+                        aspect={uploadAspectFor(it.key)}
                         label={it.label ?? it.key}
+                        hint={uploadHintFor(it.key)}
                       />
                     ) : optionChoices ? (
                       <select

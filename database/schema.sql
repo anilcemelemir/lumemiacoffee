@@ -396,9 +396,13 @@ INSERT INTO appearance_settings (`key`, `value`, `kind`, `group`, label, sort_or
     ('logo-mark-url',      '/images/logo-mark.svg',    'url',  'brand', 'Logo işareti URL',  210),
     ('brand-name',         'Lume Mia Coffee',          'text', 'brand', 'Marka adı',         220),
 
+    -- İkonlar
+    ('favicon-url',          '', 'url', 'icons', 'Favicon (tarayıcı sekme ikonu)', 300),
+    ('apple-touch-icon-url', '', 'url', 'icons', 'Apple Touch Icon (iOS ana ekran)', 310),
+
     -- Tipografi
-    ('font-display',       'Cormorant Garamond, serif', 'font', 'typography', 'Başlık fontu', 300),
-    ('font-body',          'Inter, sans-serif',         'font', 'typography', 'Gövde fontu',  310),
+    ('font-display',       'Cormorant Garamond, serif', 'font', 'typography', 'Başlık fontu', 320),
+    ('font-body',          'Inter, sans-serif',         'font', 'typography', 'Gövde fontu',  330),
 
     -- Yerleşim & davranış
     ('menu_cta.background',   'dotted', 'option', 'layout', 'Menü CTA arka planı (dotted | cream)',     400),

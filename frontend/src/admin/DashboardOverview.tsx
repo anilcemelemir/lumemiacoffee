@@ -5,13 +5,15 @@ import { useTheme } from "../lib/theme";
 type StatusResp = {
   status: "ok";
   service?: string;
-  database?: { driver?: string; reachable?: boolean };
+  database?: { connected?: boolean; reachable?: boolean; server?: string; driver?: string };
 };
 
 export function DashboardOverview({ user }: { user: { username: string; role: string } | null }) {
   const { brand } = useTheme();
   const [status, setStatus] = useState<StatusResp | null>(null);
   const [counts, setCounts] = useState<{ products: number; categories: number; content: number } | null>(null);
+  const databaseConnected = status?.database?.connected ?? status?.database?.reachable ?? false;
+  const databaseLabel = status?.database?.server ?? status?.database?.driver ?? "—";
 
   useEffect(() => {
     api.get<StatusResp>("/api/v1/status").then(setStatus).catch(() => {});
@@ -60,7 +62,7 @@ export function DashboardOverview({ user }: { user: { username: string; role: st
           <dd className="text-[var(--text-primary)]">{status?.service ?? "—"}</dd>
           <dt className="text-[var(--text-muted)]">Veritabanı</dt>
           <dd className="text-[var(--text-primary)]">
-            {status?.database?.reachable ? "✓ Bağlı" : "✗ Erişilemiyor"} ({status?.database?.driver ?? "—"})
+            {databaseConnected ? "✓ Bağlı" : "✗ Erişilemiyor"} ({databaseLabel})
           </dd>
         </dl>
       </div>
