@@ -3,6 +3,7 @@ import { Check, X, Save, Loader2 } from "lucide-react";
 import { api } from "../lib/api";
 import { MediaDropzone } from "../components/MediaDropzone";
 import { RichTextEditor } from "../components/RichTextEditor";
+import { LEGAL_CONTENT_ITEMS } from "../content/legal";
 
 type ContentItem = {
   key: string;
@@ -55,6 +56,10 @@ const DEFAULT_CONTENT_ITEMS: ContentItem[] = [
   { key: "footer.social_tt", value: "TikTok", group: "footer", label: "TikTok Etiketi", updated_at: "" },
   { key: "footer.social_tt_url", value: "https://www.tiktok.com/", group: "footer", label: "TikTok URL", updated_at: "" },
   { key: "footer.consent", value: "Gönderdiğim verilerimin toplanmasını ve saklanmasını kabul ediyorum.", group: "footer", label: "Onay kutusu metni", updated_at: "" },
+  { key: "footer.link_delivery", value: "Teslimat ve İade", group: "footer", label: "Teslimat ve iade bağlantısı", updated_at: "" },
+  { key: "footer.link_privacy", value: "Gizlilik", group: "footer", label: "Gizlilik bağlantısı", updated_at: "" },
+  { key: "footer.link_distance", value: "Mesafeli Satış Sözleşmesi", group: "footer", label: "Mesafeli satış bağlantısı", updated_at: "" },
+  ...LEGAL_CONTENT_ITEMS.map((item) => ({ ...item, updated_at: "" })),
 ];
 
 function withDefaultContentItems(items: ContentItem[]): ContentItem[] {
@@ -67,7 +72,7 @@ function withDefaultContentItems(items: ContentItem[]): ContentItem[] {
 // Category & section configuration
 // ---------------------------------------------------------------
 
-type CategoryId = "intro" | "story" | "sections" | "contact" | "media";
+type CategoryId = "intro" | "story" | "sections" | "contact" | "legal" | "media";
 
 type CategoryDef = {
   id: CategoryId;
@@ -101,6 +106,12 @@ const CATEGORIES: CategoryDef[] = [
     label: "İletişim & Footer",
     description: "Adres, ziyaret bilgileri, bülten ve footer metinleri",
     groups: ["visit", "newsletter", "footer"],
+  },
+  {
+    id: "legal",
+    label: "Yasal Metinler",
+    description: "Teslimat, iade, gizlilik ve mesafeli satış sayfalarının yayınlanan içerikleri",
+    groups: ["legal-delivery", "legal-privacy", "legal-distance"],
   },
   {
     id: "media",
@@ -140,6 +151,9 @@ const SECTION_LABELS: Record<string, { label: string; hint: string }> = {
   visit:      { label: "Anasayfa > 10. Bölüm — Alt Kısım",            hint: "Adres, çalışma saatleri, telefon ve e-posta bloğu" },
   newsletter: { label: "Anasayfa > 11. Bölüm — Alt Kısım",            hint: "Newsletter formu ve sosyal medya etiketleri" },
   footer:     { label: "Anasayfa > 12. Bölüm — Sayfa Sonu (Footer)",  hint: "Hızlı bağlantılar, küçük not formu ve telif satırı" },
+  "legal-delivery": { label: "Yasal Sayfa > Teslimat ve İade Şartları", hint: "Footer'daki Teslimat ve İade bağlantısından açılan sayfa" },
+  "legal-privacy":  { label: "Yasal Sayfa > Gizlilik ve Kişisel Veriler", hint: "Footer ve iletişim formundaki Gizlilik bağlantısından açılan sayfa" },
+  "legal-distance": { label: "Yasal Sayfa > Mesafeli Satış Sözleşmesi", hint: "Footer'daki Mesafeli Satış Sözleşmesi bağlantısından açılan sayfa" },
   // Media groups
   "media-intro":     { label: "Görsel · Anasayfa > Sayfa Başı — Intro Bandı", hint: "Sayfa en üstündeki tam ekran soluk arka plan görseli" },
   "media-hero":      { label: "Görsel · Anasayfa > 1. Bölüm — Açılış Ekranı", hint: "Sayfanın açılışındaki üç katmanlı kart kompozisyonu" },
@@ -167,7 +181,7 @@ type MediaSlot = {
 
 const MEDIA_SLOTS: Record<string, MediaSlot> = {
   // Intro banner
-  "media.intro.banner":       { aspect: "16:9",  recommended: "1920Ã—1080 (yatay)" },
+  "media.intro.banner":       { aspect: "16:9",  recommended: "1920×1080 (yatay)" },
   // Hero
   "media.hero.latte":         { aspect: "3:4",  recommended: "1200×1600 (portre)" },
   "media.hero.collage":       { aspect: "5:7",  recommended: "1400×1960 (portre)" },

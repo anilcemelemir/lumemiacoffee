@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router';
 import PublicSite from './pages/PublicSite';
 import MenuPage from './pages/MenuPage';
 import HikayemizPage from './pages/HikayemizPage';
+import LegalPage from './pages/LegalPage';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import { RequireAuth } from './components/RequireAuth';
@@ -11,6 +12,9 @@ export default function App() {
     <Routes>
       <Route path="/menu" element={<MenuPage />} />
       <Route path="/hikayemiz" element={<HikayemizPage />} />
+      <Route path="/teslimat-ve-iade" element={<LegalPage kind="delivery" />} />
+      <Route path="/gizlilik" element={<LegalPage kind="privacy" />} />
+      <Route path="/mesafeli-satis-sozlesmesi" element={<LegalPage kind="distance" />} />
       <Route path="/admin-giris" element={<AdminLogin />} />
       <Route
         path="/admin"

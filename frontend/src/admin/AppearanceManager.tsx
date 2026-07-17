@@ -20,7 +20,7 @@ const GROUP_LABELS: Record<string, string> = {
   brand: "Marka",
   icons: "İkonlar",
   typography: "Tipografi",
-  layout: "YerleÅŸim & DavranÄ±ÅŸ",
+  layout: "Yerleşim & Davranış",
 };
 
 function uploadPrefixFor(key: string): string {
@@ -83,7 +83,7 @@ export function AppearanceManager() {
   useEffect(() => {
     api.get<ListResponse>("/api/v1/admin/appearance", true)
       .then((r) => setItems(r.data))
-      .catch((e) => setError(e instanceof Error ? e.message : "YÃ¼kleme hatasÄ±"))
+      .catch((e) => setError(e instanceof Error ? e.message : "Yükleme hatası"))
       .finally(() => setLoading(false));
   }, []);
 
@@ -124,13 +124,13 @@ export function AppearanceManager() {
       // Re-pull theme into the live page
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "KayÄ±t hatasÄ±");
+      setError(e instanceof Error ? e.message : "Kayıt hatası");
     } finally {
       setSaving(false);
     }
   }
 
-  if (loading) return <p className="text-stone-500">YÃ¼kleniyorâ€¦</p>;
+  if (loading) return <p className="text-stone-500">Yükleniyor…</p>;
 
   return (
     <div className="space-y-8">
@@ -177,7 +177,7 @@ export function AppearanceManager() {
                   <div className="flex-1 min-w-0">
                     <label className="block text-xs uppercase tracking-wider text-[var(--text-muted)] mb-1">
                       {it.label ?? it.key}
-                      {isDirty && <span className="ml-2 text-[var(--brand-accent)]">â—</span>}
+                      {isDirty && <span className="ml-2 text-[var(--brand-accent)]">●</span>}
                     </label>
                     {it.kind === "url" ? (
                       <MediaDropzone

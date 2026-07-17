@@ -219,7 +219,14 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
                       {t(
                         'footer.consent',
                         'Gönderdiğim verilerimin toplanmasını ve saklanmasını kabul ediyorum.',
-                      )}
+                      )}{' '}
+                      <Link
+                        to="/gizlilik"
+                        className="underline decoration-[color-mix(in_srgb,var(--brand-accent)_55%,transparent)] underline-offset-2 hover:text-[var(--brand-accent)]"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        Gizlilik metni
+                      </Link>
                     </span>
                   </label>
                 </div>
@@ -311,6 +318,51 @@ const FooterSection = ({ className = '', compact = false }: FooterSectionProps) 
             ))}
           </div>
         </div>
+
+        <nav
+          aria-label="Yasal bağlantılar"
+          className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-3 text-center"
+        >
+          <Link
+            to="/teslimat-ve-iade"
+            className="text-xs text-[color-mix(in_srgb,var(--text-on-dark)_55%,transparent)] transition-colors hover:text-[var(--brand-accent)]"
+          >
+            {t('footer.link_delivery', 'Teslimat ve İade')}
+          </Link>
+          <Link
+            to="/gizlilik"
+            className="text-xs text-[color-mix(in_srgb,var(--text-on-dark)_55%,transparent)] transition-colors hover:text-[var(--brand-accent)]"
+          >
+            {t('footer.link_privacy', 'Gizlilik')}
+          </Link>
+          <Link
+            to="/mesafeli-satis-sozlesmesi"
+            className="text-xs text-[color-mix(in_srgb,var(--text-on-dark)_55%,transparent)] transition-colors hover:text-[var(--brand-accent)]"
+          >
+            {t('footer.link_distance', 'Mesafeli Satış Sözleşmesi')}
+          </Link>
+        </nav>
+
+        <div className="mt-6 flex justify-center">
+          <img
+            src="/images/payment-methods-white.png"
+            alt="iyzico ile ode, Mastercard, Visa, American Express ve Troy"
+            loading="lazy"
+            className="h-auto w-full max-w-[680px] opacity-70"
+          />
+        </div>
+
+        <p className="mt-6 text-center text-micro text-[color-mix(in_srgb,var(--text-on-dark)_60%,transparent)]">
+          <a
+            href="https://teknoparkyazilim.com"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[var(--brand-accent)] hover:text-[var(--text-on-dark)] transition-colors"
+          >
+            TeknoPark Yazılım
+          </a>{' '}
+          tarafından hazırlanmıştır.
+        </p>
       </div>
     </section>
   );

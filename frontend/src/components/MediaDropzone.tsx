@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState, type DragEvent } from "react";
 import { Upload, Image as ImageIcon, Video as VideoIcon, X, Loader2 } from "lucide-react";
 import { uploads, type UploadedImage, type UploadedVideo } from "../lib/api";
+import { prepareImageForUpload } from "../lib/imageProcessing";
 
 type ImageProps = {
   kind: "image";
@@ -41,10 +42,14 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
       const onProgress = (_l: number, _t: number, pct: number) => setProg(pct);
       let result: UploadedImage | UploadedVideo;
       if (props.kind === "image") {
-        const r = await uploads.image(file, {
+        setProg(5);
+        const prepared = await prepareImageForUpload(file, props.aspect);
+        setProg(10);
+        const r = await uploads.image(prepared.file, {
           aspect: props.aspect,
           prefix: props.prefix,
-          onProgress,
+          clientProcessed: true,
+          onProgress: (_loaded, _total, pct) => onProgress(_loaded, _total, Math.max(10, pct)),
         });
         result = r.data;
       } else {
@@ -158,7 +163,7 @@ export function MediaDropzone(props: ImageProps | VideoProps) {
               <p className="max-w-full text-center text-[11px] text-[var(--text-muted)] flex flex-wrap items-center justify-center gap-1">
                 <Icon className="w-3 h-3" />
                 {isImage
-                  ? "PNG, JPG, WebP, GIF — otomatik WebP'ye çevrilir"
+                  ? "PNG, JPG, WebP, GIF — tarayıcıda kırpılır ve WebP'ye çevrilir"
                   : "MP4 / WebM / MOV — en fazla 10 MB"}
               </p>
             </>

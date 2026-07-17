@@ -127,12 +127,18 @@ function upload<T>(
 export const uploads = {
   image(
     file: File,
-    opts: { aspect?: string; prefix?: string; onProgress?: UploadProgress } = {},
+    opts: {
+      aspect?: string;
+      prefix?: string;
+      clientProcessed?: boolean;
+      onProgress?: UploadProgress;
+    } = {},
   ): Promise<{ status: "ok"; data: UploadedImage }> {
     const fd = new FormData();
     fd.append("file", file);
     if (opts.aspect) fd.append("aspect", opts.aspect);
     if (opts.prefix) fd.append("prefix", opts.prefix);
+    if (opts.clientProcessed) fd.append("processing", "browser-v1");
     return upload("/api/v1/admin/uploads/image", fd, opts.onProgress);
   },
   video(

@@ -78,10 +78,10 @@ const MenuSection = ({ className = '' }: MenuSectionProps) => {
         {/* Heading Block */}
         <div ref={headingRef} className="flex flex-col lg:flex-row lg:items-end lg:justify-between mb-12">
           <h2 className="font-display text-h2 text-[var(--text-on-dark)] mb-4 lg:mb-0">
-            {t('menu.title', 'MEN�S')}
+            {t('menu.title', 'MENÜ')}
           </h2>
           <p className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] max-w-sm">
-            {t('menu.subtitle', 'Mevsime göre de�xi�xir, her gün taze. Tüm fiyatlara KDV dahildir.')}
+            {t('menu.subtitle', 'Mevsime göre değişir, her gün taze. Tüm fiyatlara KDV dahildir.')}
           </p>
         </div>
 
@@ -124,7 +124,7 @@ const MenuSection = ({ className = '' }: MenuSectionProps) => {
         <div className="mt-12 p-6 bg-[color-mix(in_srgb,var(--text-on-dark)_5%,transparent)] border border-[color-mix(in_srgb,var(--text-on-dark)_10%,transparent)] rounded-2xl flex items-start gap-4">
           <Coffee className="w-5 h-5 text-[var(--brand-accent)] mt-0.5 flex-shrink-0" />
           <p className="text-body text-[color-mix(in_srgb,var(--text-on-dark)_70%,transparent)] text-sm">
-            {t('menu.extras_note', 'Hafif tatlılar her gün taze � bugünün seçimi için baristamıza danı�xın.')}
+            {t('menu.extras_note', 'Hafif tatlılar her gün taze; bugünün seçimi için baristamıza danışın.')}
           </p>
         </div>
       </div>
